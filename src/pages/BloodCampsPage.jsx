@@ -10,6 +10,7 @@ const BloodCampsPage = () => {
   const [camps, setCamps] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [registeredCamps, setRegisteredCamps] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +36,32 @@ const BloodCampsPage = () => {
     };
     fetchCamps();
   }, []);
+
+  // Check registration status for each camp after camps are loaded
+  useEffect(() => {
+    const checkRegistrations = async () => {
+      const storedUserData = JSON.parse(localStorage.getItem('userData'));
+      const userId = storedUserData?.user?.id;
+      if (!userId || camps.length === 0) return;
+      const results = {};
+      await Promise.all(
+        camps.map(async (camp) => {
+          const campId = camp._id || camp.id;
+          try {
+            const res = await axios.get('http://localhost:5000/api/v1/camp-registrations/check', {
+              params: { userId, campId }
+            });
+            results[campId] = res.data.registered;
+          } catch (err) {
+            console.error(`Error checking registration for camp ${campId}:`, err);
+            results[campId] = false;
+          }
+        })
+      );
+      setRegisteredCamps(results);
+    };
+    checkRegistrations();
+  }, [camps]);
 
   const handleRegister = async (campId) => {
     // Get userId from localStorage
@@ -159,8 +186,9 @@ const BloodCampsPage = () => {
                         <button 
                           className="register-btn"
                           onClick={() => handleRegister(camp._id || camp.id)}
+                          disabled={registeredCamps[camp._id || camp.id]}
                         >
-                          Register
+                          {registeredCamps[camp._id || camp.id] ? 'You Are Registered' : 'Register'}
                         </button>
                       )}
                     </div>
