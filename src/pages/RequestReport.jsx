@@ -28,6 +28,29 @@ const RequestReport = () => {
     return REQUIRED_FIELDS.every(field => request[field]);
   };
 
+  // const handleConfirmationChange = (requestId, newConfirmation) => {
+  //   const updatedRequests = requests.map(request => 
+  //     request.id === requestId 
+  //       ? { ...request, confirmation: newConfirmation }
+  //       : request
+  //   );
+  //   setRequests(updatedRequests);
+  //   const allRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
+  //   const updatedAllRequests = allRequests.map(request =>
+  //     request.id === requestId
+  //       ? { ...request, confirmation: newConfirmation }
+  //       : request
+  //   );
+  //   localStorage.setItem('bloodRequests', JSON.stringify(updatedAllRequests));
+  // };
+
+  const getConfirmationBadge = (confirmation) => {
+    if (confirmation === 'received') {
+      return <span className="confirmation-badge confirmation-received">Received</span>;
+    }
+    return <span className="confirmation-badge confirmation-not-received">Not Received</span>;
+  };
+
   const loadAllRequests = () => {
     setLoading(true);
     // Admin sees all requests from all users
@@ -44,7 +67,8 @@ const RequestReport = () => {
           doctorId: 'DOC001',
           bloodType: 'A+',
           wardNumber: 'W-204',
-          status: 'pending'
+          status: 'pending',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ002',
@@ -54,7 +78,8 @@ const RequestReport = () => {
           doctorId: 'DOC002',
           bloodType: 'O-',
           wardNumber: 'W-105',
-          status: 'approved'
+          status: 'approved',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ003',
@@ -64,7 +89,8 @@ const RequestReport = () => {
           doctorId: 'DOC003',
           bloodType: 'B+',
           wardNumber: 'W-301',
-          status: 'not_available'
+          status: 'not_available',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ004',
@@ -74,7 +100,8 @@ const RequestReport = () => {
           doctorId: 'DOC001',
           bloodType: 'AB+',
           wardNumber: 'W-108',
-          status: 'pending'
+          status: 'pending',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ005',
@@ -84,7 +111,8 @@ const RequestReport = () => {
           doctorId: 'DOC004',
           bloodType: 'O+',
           wardNumber: 'W-215',
-          status: 'approved'
+          status: 'approved',
+          confirmation: 'not_received'
         }
       ];
       localStorage.setItem('bloodRequests', JSON.stringify(sampleRequests));
@@ -111,7 +139,8 @@ const RequestReport = () => {
           doctorId: 'DOC001',
           bloodType: 'A+',
           wardNumber: 'W-204',
-          status: 'approved'
+          status: 'approved',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ002',
@@ -121,7 +150,8 @@ const RequestReport = () => {
           doctorId: 'DOC001',
           bloodType: 'O-',
           wardNumber: 'W-105',
-          status: 'pending'
+          status: 'pending',
+          confirmation: 'not_received'
         },
         {
           id: 'REQ003',
@@ -131,7 +161,8 @@ const RequestReport = () => {
           doctorId: 'DOC001',
           bloodType: 'B+',
           wardNumber: 'W-301',
-          status: 'not_available'
+          status: 'not_available',
+          confirmation: 'not_received'
         }
       ];
       // Save sample requests to localStorage
@@ -236,6 +267,7 @@ const RequestReport = () => {
                   <th>Blood Type</th>
                   <th>Ward Number</th>
                   <th>Status</th>
+                  <th>Confirmation</th>
                 </tr>
               </thead>
               <tbody>
@@ -251,6 +283,9 @@ const RequestReport = () => {
                         ? getStatusDropdown(request)
                         : getStatusBadge(request.status)
                       }
+                    </td>
+                    <td data-label="Confirmation">
+                      {getConfirmationBadge(request.confirmation || 'not_received')}
                     </td>
                   </tr>
                 ))}
