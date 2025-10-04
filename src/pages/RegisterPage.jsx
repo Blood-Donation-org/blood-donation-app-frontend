@@ -145,10 +145,10 @@ const RegisterPage = () => {
     try {
       // Map frontend fields to backend expected fields
       const payload = {
-        accountType: formData.role === 'admin' ? 'ADMIN' : (formData.role === 'doctor' ? 'DOCTOR' : 'USER'),
+        accountType: formData.role === 'admin' ? 'admin' : (formData.role === 'doctor' ? 'doctor' : 'user'),
         email: formData.email,
         password: formData.password,
-        role: formData.role === 'admin' ? 'ADMIN' : (formData.role === 'doctor' ? 'DOCTOR' : 'USER'),
+        role: formData.role === 'admin' ? 'admin' : (formData.role === 'doctor' ? 'doctor' : 'user'),
         fullName: formData.name,
         phoneNumber: formData.phone,
         dob: formData.dateOfBirth,

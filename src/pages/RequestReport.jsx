@@ -12,7 +12,7 @@ const RequestReport = () => {
     // Get current user data
     const userData = JSON.parse(localStorage.getItem('userData'));
     setCurrentUser(userData);
-    setUserRole(userData?.role);
+    setUserRole(userData?.user?.role);
 
     // Load requests based on user role
     if (userData?.role === 'admin') {
