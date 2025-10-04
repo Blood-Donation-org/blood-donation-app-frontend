@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import '../styles/AddCampPage.css';
 import Navbar from '../components/Navbar';
+import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AddCampPage = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +16,10 @@ const AddCampPage = () => {
     message: ''
   });
 
+ const navigate = useNavigate();
+ const [loading, setLoading] = useState(false);
+ const [error, setError] = useState('');
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -22,27 +28,61 @@ const AddCampPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!formData.name || !formData.place || !formData.date || !formData.time || !formData.contactNumber) {
-      alert('Please fill in all required fields');
-      return;
+    const validateStep2 = () => {
+    if (!formData.address || !formData.password || !formData.confirmPassword) {
+      alert('Please fill in all required fields!');
+      return false;
     }
+  };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+
+  //   if (!formData.name || !formData.place || !formData.date || !formData.time || !formData.contactNumber) {
+  //     alert('Please fill in all required fields');
+  //     return;
+  //   }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateStep2()) return;
+    setLoading(true);
+    setError('');
+    try {
+      // Map frontend fields to backend expected fields
+      const payload = {
+        accountType: formData.role === 'admin' ? 'ADMIN' : (formData.role === 'doctor' ? 'DOCTOR' : 'USER'),
+        campName: formData.name,
+        place: formData.place,
+        date: formData.date,
+        time: formData.time,
+        contactNumber: formData.contactNumber,
+        emailAddress: formData.email,
+        organizer: formData.organizer,
+        message: formData.message,
+      };
+          await axios.post('http://localhost:5000//api/v1/camps/create', payload);
+          alert('Registration successful!');
+          navigate('/');
+        } catch (err) {
+          setError(err.response?.data?.message || 'Registration failed. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+  
 
     console.log('Camp data:', formData);
     alert('Camp added successfully!');
 
-    setFormData({
-      name: '',
-      place: '',
-      date: '',
-      time: '',
-      contactNumber: '',
-      email: '',
-      organizer: '',
-      message: ''
-    });
+    // setFormData({
+    //   name: '',
+    //   place: '',
+    //   date: '',
+    //   time: '',
+    //   contactNumber: '',
+    //   email: '',
+    //   organizer: '',
+    //   message: ''
+    // });
   };
 
   return (
@@ -149,9 +189,11 @@ const AddCampPage = () => {
               ></textarea>
             </div>
 
-            <button type="submit" className="update-btn">
+            <button type="submit" className="update-btn" disabled={loading}>
               Add Camp
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
+            {error && <div className="error-message">{error}</div>}
           </form>
         </div>
       </div>
