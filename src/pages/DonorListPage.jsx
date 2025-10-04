@@ -1,78 +1,34 @@
-import React, { useState } from 'react';
-import '../styles/DonorListPage.css';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
+import '../styles/DonorListPage.css';
 
 const DonorListPage = () => {
-  // Sample donor data
-  const donors = [
-    {
-      id: 1,
-      name: "A.D.Perera",
-      gender: "Male",
-      bloodGroup: "AB+",
-      mobile: "0765527896",
-      email: "abc@gmail.com",
-      age: "30 yrs",
-      address: "Colombo",
-      message: "Call me if blood requiring"
-    },
-    {
-      id: 2,
-      name: "K.D.Silva",
-      gender: "Female",
-      bloodGroup: "O+",
-      mobile: "0772107752",
-      email: "silva@gmail.com",
-      age: "25 yrs",
-      address: "Kalutara",
-      message: "Call me if blood requiring"
-    },
-    {
-      id: 3,
-      name: "S.H.Amarathunga",
-      gender: "Female",
-      bloodGroup: "AB+",
-      mobile: "0714588012",
-      email: "sanduni@gmail.com",
-      age: "30 yrs",
-      address: "Gampaha",
-      message: "Call me if blood requiring"
-    },
-    {
-      id: 4,
-      name: "Kasun Wickramage",
-      gender: "Male",
-      bloodGroup: "B-",
-      mobile: "0707520149",
-      email: "kasun@gmail.com",
-      age: "33 yrs",
-      address: "Galle",
-      message: "Call me if blood requiring"
-    },
-    {
-      id: 5,
-      name: "Hasini Liyanage",
-      gender: "Female",
-      bloodGroup: "AB-",
-      mobile: "0714496752",
-      email: "hasini@gmail.com",
-      age: "27 yrs",
-      address: "Kalutara",
-      message: "Call me if blood requiring"
-    },
-    {
-      id: 6,
-      name: "Thisara Madhushika",
-      gender: "Male",
-      bloodGroup: "O-",
-      mobile: "0771224152",
-      email: "thisara@gmail.com",
-      age: "23 yrs",
-      address: "Colombo",
-      message: "Call me if blood requiring"
-    }
-  ];
+  // Donor data from backend
+  const [donors, setDonors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchDonors = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/users/role/user');
+        // Adjust according to backend response structure
+        const donorList = response.data.users || response.data || [];
+        setDonors(donorList);
+      } catch (err) {
+        console.error('Error fetching donors:', err);
+        setError('Failed to fetch donors');
+        setDonors([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDonors();
+  }, []);
 
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('');
@@ -221,62 +177,76 @@ const DonorListPage = () => {
       {/* Donor List Section */}
       <div className="donor-list-section">
         <div className="donor-list-container">
-          <div className="donors-grid">
-            {filteredDonors.map((donor) => (
-              <div key={donor.id} className="donor-card">
-                <div className="donor-avatar">
-                  <div className="avatar-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="currentColor"/>
-                      <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                </div>
-                
-                <div className="donor-info">
-                  <div className="info-row">
-                    <span className="info-label">NAME :</span>
-                    <span className="info-value">{donor.name}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">GENDER :</span>
-                    <span className="info-value">{donor.gender}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">BLOOD GROUP :</span>
-                    <span className="info-value">{donor.bloodGroup}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">MOBILE NUMBER :</span>
-                    <span className="info-value">{donor.mobile}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">E-MAIL :</span>
-                    <span className="info-value">{donor.email}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">AGE :</span>
-                    <span className="info-value">{donor.age}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">ADDRESS :</span>
-                    <span className="info-value">{donor.address}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">MESSAGE :</span>
-                    <span className="info-value">{donor.message}</span>
-                  </div>
-                </div>
+          {loading ? (
+            <div className="donors-grid"><h3>Loading donors...</h3></div>
+          ) : error ? (
+            <div className="donors-grid"><h3>{error}</h3></div>
+          ) : (
+            <div className="donors-grid">
+              {filteredDonors.length === 0 ? (
+                <div className="donors-grid"><h4>No donors found.</h4></div>
+              ) : (
+                filteredDonors.map((donor) => (
+                  <div key={donor._id || donor.id} className="donor-card">
+                    <div className="donor-avatar">
+                      <div className="avatar-icon">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="currentColor"/>
+                          <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                    </div>
 
-                <button 
-                  className="request-btn"
-                  onClick={() => handleRequest(donor.name)}
-                >
-                  Request
-                </button>
-              </div>
-            ))}
-          </div>
+                    <div className="donor-info">
+                      <div className="info-row">
+                        <span className="info-label">NAME :</span>
+                        <span className="info-value">{donor.fullName}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">EMAIL :</span>
+                        <span className="info-value">{donor.email}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">PHONE :</span>
+                        <span className="info-value">{donor.phoneNumber}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">BLOOD TYPE :</span>
+                        <span className="info-value">{donor.bloodType}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">DATE OF BIRTH :</span>
+                        <span className="info-value">{donor.dob}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">ADDRESS :</span>
+                        <span className="info-value">{donor.address}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">MEDICAL HISTORY :</span>
+                        <span className="info-value">{donor.medicalHistory || '-'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">DONOR :</span>
+                        <span className="info-value">{donor.isDoner ? 'Yes' : 'No'}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">PATIENT :</span>
+                        <span className="info-value">{donor.isPatient ? 'Yes' : 'No'}</span>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="request-btn"
+                      onClick={() => handleRequest(donor.name)}
+                    >
+                      Request
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

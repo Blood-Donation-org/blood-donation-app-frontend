@@ -1,8 +1,6 @@
-import React, { useState } from 'react';
-import '../styles/AddCampPage.css';
-import Navbar from '../components/Navbar';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import Navbar from '../components/Navbar';
 
 const AddCampPage = () => {
   const [formData, setFormData] = useState({
@@ -28,21 +26,7 @@ const AddCampPage = () => {
     }));
   };
 
-    const validateStep2 = () => {
-    if (!formData.address || !formData.password || !formData.confirmPassword) {
-      alert('Please fill in all required fields!');
-      return false;
-    }
-  };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   if (!formData.name || !formData.place || !formData.date || !formData.time || !formData.contactNumber) {
-  //     alert('Please fill in all required fields');
-  //     return;
-  //   }
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!validateStep2()) return;
     setLoading(true);
@@ -73,16 +57,16 @@ const AddCampPage = () => {
     console.log('Camp data:', formData);
     alert('Camp added successfully!');
 
-    // setFormData({
-    //   name: '',
-    //   place: '',
-    //   date: '',
-    //   time: '',
-    //   contactNumber: '',
-    //   email: '',
-    //   organizer: '',
-    //   message: ''
-    // });
+    setFormData({
+      name: '',
+      place: '',
+      date: '',
+      time: '',
+      contactNumber: '',
+      email: '',
+      organizer: '',
+      message: ''
+    });
   };
 
   return (

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/Stock.css';
 import Navbar from '../components/Navbar';
+import '../styles/Stock.css';
 
 const Stock = () => {
   const navigate = useNavigate();
@@ -32,28 +33,22 @@ const Stock = () => {
   });
 
   useEffect(() => {
-    loadBloodStocks();
+    const fetchBloodStocks = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/blood-inventory/');
+        // Assuming response.data.bloodInventory is an array of inventory items
+        const inventory = response.data.bloodInventory || response.data || [];
+        setBloodStocks(inventory);
+      } catch (err) {
+        console.error('Error fetching blood inventory:', err);
+        setBloodStocks([]);
+      }
+    };
+    fetchBloodStocks();
   }, []);
 
-  const loadBloodStocks = () => {
-    const stocks = JSON.parse(localStorage.getItem('bloodStocks')) || [
-      { type: 'A+', count: 100 },
-      { type: 'A-', count: 90 },
-      { type: 'B+', count: 120 },
-      { type: 'B-', count: 80 },
-      { type: 'O+', count: 110 },
-      { type: 'O-', count: 75 },
-      { type: 'AB+', count: 110 },
-      { type: 'AB-', count: 66 }
-    ];
-    
-    localStorage.setItem('bloodStocks', JSON.stringify(stocks));
-    setBloodStocks(stocks);
-  };
-
-  const handleViewDetails = (bloodType) => {
-    const encodedBloodType = encodeURIComponent(bloodType);
-    navigate(`/stock-result/${encodedBloodType}`);
+  const handleViewDetails = (id) => {
+    navigate(`/stock-result/${id}`);
   };
 
   const handleAddBlood = () => {
@@ -71,147 +66,77 @@ const Stock = () => {
     return `BP${timestamp}${random}`;
   };
 
-  const submitAddBlood = (e) => {
+  const submitAddBlood = async (e) => {
     e.preventDefault();
-    
+
     if (!addForm.donorName || !addForm.donorPhone || !addForm.donorAge) {
       alert('Please fill in all donor details');
       return;
     }
 
-    // Calculate expiry date (35 days from donation)
-    const donationDate = new Date(addForm.donationDate);
-    const expiryDate = new Date(donationDate);
-    expiryDate.setDate(expiryDate.getDate() + 35);
-
-    // Generate unique blood packet IDs
-    const bloodPackets = [];
-    for (let i = 0; i < parseInt(addForm.units); i++) {
-      bloodPackets.push({
-        id: generateBloodPacketId(),
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/blood-inventory/create', {
         bloodType: addForm.bloodType,
-        donorName: addForm.donorName,
-        donorPhone: addForm.donorPhone,
-        donorAge: addForm.donorAge,
+        units: parseInt(addForm.units),
+        donerName: addForm.donorName,
+        donerphone: addForm.donorPhone,
+        donerAge: addForm.donorAge,
         donationDate: addForm.donationDate,
-        expiryDate: expiryDate.toISOString().split('T')[0],
-        notes: addForm.notes,
-        status: 'available'
+        Notes: addForm.notes
       });
+      if (response.status === 201) {
+        alert(`Successfully added ${addForm.units} unit(s) of ${addForm.bloodType} blood to inventory`);
+        setShowAddModal(false);
+        resetAddForm();
+        // Optionally reload stocks from backend here
+      } else {
+        alert(response.data.message || 'Failed to add blood inventory');
+      }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
     }
-
-    // Save blood packets to localStorage
-    const existingPackets = JSON.parse(localStorage.getItem('bloodPackets')) || [];
-    const updatedPackets = [...existingPackets, ...bloodPackets];
-    localStorage.setItem('bloodPackets', JSON.stringify(updatedPackets));
-
-    // Update blood stocks
-    const updatedStocks = bloodStocks.map(stock => 
-      stock.type === addForm.bloodType 
-        ? { ...stock, count: stock.count + parseInt(addForm.units) }
-        : stock
-    );
-    
-    setBloodStocks(updatedStocks);
-    localStorage.setItem('bloodStocks', JSON.stringify(updatedStocks));
-
-    // Save donation record
-    const donations = JSON.parse(localStorage.getItem('donations')) || [];
-    const newDonation = {
-      id: `DON${Date.now()}`,
-      donorName: addForm.donorName,
-      donorPhone: addForm.donorPhone,
-      donorAge: addForm.donorAge,
-      bloodType: addForm.bloodType,
-      units: parseInt(addForm.units),
-      donationDate: addForm.donationDate,
-      expiryDate: expiryDate.toISOString().split('T')[0],
-      bloodPacketIds: bloodPackets.map(p => p.id),
-      notes: addForm.notes
-    };
-    donations.push(newDonation);
-    localStorage.setItem('donations', JSON.stringify(donations));
-
-    alert(`Successfully added ${addForm.units} unit(s) of ${addForm.bloodType} blood to inventory`);
-    setShowAddModal(false);
-    resetAddForm();
   };
 
-  const submitIssueBlood = (e) => {
+  const submitIssueBlood = async (e) => {
     e.preventDefault();
-    
+
     if (!issueForm.requestId || !issueForm.doctorName || !issueForm.patientName) {
       alert('Please fill in all required fields');
       return;
     }
 
-    const currentStock = bloodStocks.find(stock => stock.type === issueForm.bloodType);
-    if (!currentStock || currentStock.count < parseInt(issueForm.units)) {
-      alert('Insufficient blood stock available');
-      return;
-    }
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/blood-issues/issue', {
+        bloodType: issueForm.bloodType,
+        unitsToIssue: parseInt(issueForm.units),
+        requestId: issueForm.requestId,
+        doctorName: issueForm.doctorName,
+        patientName: issueForm.patientName,
+        reason: issueForm.reason
+      });
 
-    // Get available blood packets for this blood type
-    const bloodPackets = JSON.parse(localStorage.getItem('bloodPackets')) || [];
-    const availablePackets = bloodPackets
-      .filter(packet => packet.bloodType === issueForm.bloodType && packet.status === 'available')
-      .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate)) // Use oldest first
-      .slice(0, parseInt(issueForm.units));
-
-    if (availablePackets.length < parseInt(issueForm.units)) {
-      alert('Not enough available blood packets');
-      return;
-    }
-
-    // Mark packets as issued
-    const updatedPackets = bloodPackets.map(packet => {
-      if (availablePackets.some(ap => ap.id === packet.id)) {
-        return {
-          ...packet,
-          status: 'issued',
-          issuedDate: new Date().toISOString().split('T')[0],
-          issuedTo: {
-            requestId: issueForm.requestId,
-            doctorName: issueForm.doctorName,
-            patientName: issueForm.patientName,
-            reason: issueForm.reason
-          }
-        };
+      if (response.status === 201) {
+        alert(`Successfully issued ${issueForm.units} unit(s) of ${issueForm.bloodType} blood`);
+        setShowIssueModal(false);
+        resetIssueForm();
+        // Optionally reload stocks from backend to reflect updated units
+        const updatedInventory = await axios.get('http://localhost:5000/api/v1/blood-inventory/');
+        const inventory = updatedInventory.data.bloodInventory || updatedInventory.data || [];
+        setBloodStocks(inventory);
+      } else {
+        alert(response.data.message || 'Failed to issue blood');
       }
-      return packet;
-    });
-
-    localStorage.setItem('bloodPackets', JSON.stringify(updatedPackets));
-
-    // Update blood stocks
-    const updatedStocks = bloodStocks.map(stock => 
-      stock.type === issueForm.bloodType 
-        ? { ...stock, count: stock.count - parseInt(issueForm.units) }
-        : stock
-    );
-    
-    setBloodStocks(updatedStocks);
-    localStorage.setItem('bloodStocks', JSON.stringify(updatedStocks));
-
-    // Save issuance record
-    const issuances = JSON.parse(localStorage.getItem('bloodIssuances')) || [];
-    const newIssuance = {
-      id: `ISS${Date.now()}`,
-      bloodType: issueForm.bloodType,
-      units: parseInt(issueForm.units),
-      requestId: issueForm.requestId,
-      doctorName: issueForm.doctorName,
-      patientName: issueForm.patientName,
-      reason: issueForm.reason,
-      issuedDate: new Date().toISOString().split('T')[0],
-      bloodPacketIds: availablePackets.map(p => p.id)
-    };
-    issuances.push(newIssuance);
-    localStorage.setItem('bloodIssuances', JSON.stringify(issuances));
-
-    alert(`Successfully issued ${issueForm.units} unit(s) of ${issueForm.bloodType} blood`);
-    setShowIssueModal(false);
-    resetIssueForm();
+    } catch (error) {
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
+    }
   };
 
   const resetAddForm = () => {
@@ -262,26 +187,26 @@ const Stock = () => {
           
           <div className="blood-grid">
             {bloodStocks.map((stock, index) => (
-              <div key={index} className={`blood-card ${getStockStatusClass(stock.count)}`}>
+              <div key={stock._id || index} className={`blood-card ${getStockStatusClass(parseInt(stock.units))}`}>
                 <div className="blood-info">
-                  <div className="blood-type">{stock.type}</div>
-                  <div className="blood-count">{stock.count}</div>
+                  <div className="blood-type">{stock.bloodType}</div>
+                  <div className="blood-count">{stock.units}</div>
                   <div className="stock-status">
-                    {stock.count < 20 ? 'Low Stock' : 
-                     stock.count < 50 ? 'Medium Stock' : 'In Stock'}
+                    {parseInt(stock.units) < 20 ? 'Low Stock' : 
+                     parseInt(stock.units) < 50 ? 'Medium Stock' : 'In Stock'}
                   </div>
                 </div>
                 <div className="card-actions">
                   <button 
                     className="view-details-btn"
-                    onClick={() => handleViewDetails(stock.type)}
+                    onClick={() => handleViewDetails(stock._id)}
                   >
                     View Details
                   </button>
                   <button 
                     className="issue-blood-btn"
-                    onClick={() => handleIssueBlood(stock.type)}
-                    disabled={stock.count === 0}
+                    onClick={() => handleIssueBlood(stock.bloodType)}
+                    disabled={parseInt(stock.units) === 0}
                   >
                     Issue Blood
                   </button>
