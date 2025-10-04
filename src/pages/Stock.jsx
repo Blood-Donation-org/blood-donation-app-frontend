@@ -101,81 +101,42 @@ const Stock = () => {
     }
   };
 
-  const submitIssueBlood = (e) => {
+  const submitIssueBlood = async (e) => {
     e.preventDefault();
-    
+
     if (!issueForm.requestId || !issueForm.doctorName || !issueForm.patientName) {
       alert('Please fill in all required fields');
       return;
     }
 
-    const currentStock = bloodStocks.find(stock => stock.type === issueForm.bloodType);
-    if (!currentStock || currentStock.count < parseInt(issueForm.units)) {
-      alert('Insufficient blood stock available');
-      return;
-    }
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/blood-issues/issue', {
+        bloodType: issueForm.bloodType,
+        unitsToIssue: parseInt(issueForm.units),
+        requestId: issueForm.requestId,
+        doctorName: issueForm.doctorName,
+        patientName: issueForm.patientName,
+        reason: issueForm.reason
+      });
 
-    // Get available blood packets for this blood type
-    const bloodPackets = JSON.parse(localStorage.getItem('bloodPackets')) || [];
-    const availablePackets = bloodPackets
-      .filter(packet => packet.bloodType === issueForm.bloodType && packet.status === 'available')
-      .sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate)) // Use oldest first
-      .slice(0, parseInt(issueForm.units));
-
-    if (availablePackets.length < parseInt(issueForm.units)) {
-      alert('Not enough available blood packets');
-      return;
-    }
-
-    // Mark packets as issued
-    const updatedPackets = bloodPackets.map(packet => {
-      if (availablePackets.some(ap => ap.id === packet.id)) {
-        return {
-          ...packet,
-          status: 'issued',
-          issuedDate: new Date().toISOString().split('T')[0],
-          issuedTo: {
-            requestId: issueForm.requestId,
-            doctorName: issueForm.doctorName,
-            patientName: issueForm.patientName,
-            reason: issueForm.reason
-          }
-        };
+      if (response.status === 201) {
+        alert(`Successfully issued ${issueForm.units} unit(s) of ${issueForm.bloodType} blood`);
+        setShowIssueModal(false);
+        resetIssueForm();
+        // Optionally reload stocks from backend to reflect updated units
+        const updatedInventory = await axios.get('http://localhost:5000/api/v1/blood-inventory/');
+        const inventory = updatedInventory.data.bloodInventory || updatedInventory.data || [];
+        setBloodStocks(inventory);
+      } else {
+        alert(response.data.message || 'Failed to issue blood');
       }
-      return packet;
-    });
-
-    localStorage.setItem('bloodPackets', JSON.stringify(updatedPackets));
-
-    // Update blood stocks
-    const updatedStocks = bloodStocks.map(stock => 
-      stock.type === issueForm.bloodType 
-        ? { ...stock, count: stock.count - parseInt(issueForm.units) }
-        : stock
-    );
-    
-    setBloodStocks(updatedStocks);
-    localStorage.setItem('bloodStocks', JSON.stringify(updatedStocks));
-
-    // Save issuance record
-    const issuances = JSON.parse(localStorage.getItem('bloodIssuances')) || [];
-    const newIssuance = {
-      id: `ISS${Date.now()}`,
-      bloodType: issueForm.bloodType,
-      units: parseInt(issueForm.units),
-      requestId: issueForm.requestId,
-      doctorName: issueForm.doctorName,
-      patientName: issueForm.patientName,
-      reason: issueForm.reason,
-      issuedDate: new Date().toISOString().split('T')[0],
-      bloodPacketIds: availablePackets.map(p => p.id)
-    };
-    issuances.push(newIssuance);
-    localStorage.setItem('bloodIssuances', JSON.stringify(issuances));
-
-    alert(`Successfully issued ${issueForm.units} unit(s) of ${issueForm.bloodType} blood`);
-    setShowIssueModal(false);
-    resetIssueForm();
+    } catch (error) {
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
+    }
   };
 
   const resetAddForm = () => {
