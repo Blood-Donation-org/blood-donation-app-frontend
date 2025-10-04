@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import '../styles/AddCampPage.css';
+import axios from 'axios';
+import { useState } from 'react';
 import Navbar from '../components/Navbar';
+import '../styles/AddCampPage.css';
 
 const AddCampPage = () => {
   const [formData, setFormData] = useState({
@@ -22,7 +23,7 @@ const AddCampPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.name || !formData.place || !formData.date || !formData.time || !formData.contactNumber) {
@@ -30,19 +31,40 @@ const AddCampPage = () => {
       return;
     }
 
-    console.log('Camp data:', formData);
-    alert('Camp added successfully!');
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/camps/create', {
+        campName: formData.name,
+        place: formData.place,
+        date: formData.date,
+        time: formData.time,
+        contactNumber: formData.contactNumber,
+        emailAddress: formData.email,
+        organizer: formData.organizer,
+        message: formData.message
+      });
 
-    setFormData({
-      name: '',
-      place: '',
-      date: '',
-      time: '',
-      contactNumber: '',
-      email: '',
-      organizer: '',
-      message: ''
-    });
+      if (response.status === 201) {
+        alert('Camp added successfully!');
+        setFormData({
+          name: '',
+          place: '',
+          date: '',
+          time: '',
+          contactNumber: '',
+          email: '',
+          organizer: '',
+          message: ''
+        });
+      } else {
+        alert(response.data.message || 'Failed to add camp');
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
+    }
   };
 
   return (
