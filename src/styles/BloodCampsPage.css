@@ -1,0 +1,391 @@
+/* Reset + Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Add Camp Section - Only for Admins */
+.add-camp-section {
+  background-color: #f8f9fa;
+  padding: 120px 0 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-camp-btn {
+  background-color: #6C757D;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 40px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-camp-btn:hover {
+  background-color: #5A6268;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.add-camp-btn:active {
+  transform: translateY(0);
+}
+
+/* Camps List Section */
+.camps-list-section {
+  background-color: #f8f9fa;
+  padding: 120px 0 100px 0; /* Default padding for users (no Add Camp button) */
+  min-height: calc(100vh - 200px);
+}
+
+.camps-list-section.with-add-btn {
+  padding-top: 40px; /* Reduced padding when Add Camp button is present */
+}
+
+.camps-list-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+/* Camps Grid */
+.camps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 30px;
+  justify-items: center;
+}
+
+/* Camp Card */
+.camp-card {
+  background-color: #F8D7DA;
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Camp Avatar */
+.camp-avatar {
+  margin-bottom: 20px;
+}
+
+.avatar-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #6C757D;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Camp Info */
+.camp-info {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #333;
+  min-width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.info-value {
+  color: #555;
+  word-break: break-word;
+  flex: 1;
+}
+
+/* Register Button - Only for Users */
+.register-btn {
+  background-color: #CD2F2F;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 30px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.register-btn:hover {
+  background-color: #B02A2A;
+  transform: translateY(-1px);
+}
+
+.register-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Styles - Large screens */
+@media (min-width: 1200px) {
+  .add-camp-btn {
+    padding: 14px 50px;
+    font-size: 18px;
+  }
+  
+  .camps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 35px;
+  }
+  
+  .camp-card {
+    max-width: 420px;
+    padding: 30px;
+  }
+  
+  .info-row {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .info-label {
+    min-width: 130px;
+  }
+}
+
+/* Medium screens */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .add-camp-section {
+    padding: 100px 0 20px 0;
+  }
+  
+  .add-camp-btn {
+    padding: 12px 45px;
+    font-size: 16px;
+  }
+  
+  .camps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+  }
+  
+  .camp-card {
+    max-width: 380px;
+  }
+}
+
+/* Small screens */
+@media (max-width: 767px) {
+  .add-camp-section {
+    padding: 90px 0 15px 0;
+  }
+  
+  .add-camp-btn {
+    padding: 10px 35px;
+    font-size: 15px;
+  }
+  
+  .camps-list-section {
+    padding: 100px 0 80px 0; /* More padding for users on mobile */
+  }
+  
+  .camps-list-section.with-add-btn {
+    padding-top: 30px; /* Less padding when Add Camp button is present */
+  }
+  
+  .camps-list-container {
+    padding: 0 20px;
+  }
+  
+  .camps-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .camp-card {
+    max-width: 100%;
+    padding: 20px;
+  }
+  
+  .info-row {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  
+  .info-label {
+    min-width: 100px;
+    font-size: 12px;
+  }
+  
+  .info-value {
+    font-size: 12px;
+  }
+  
+  .avatar-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .avatar-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .register-btn {
+    padding: 8px 25px;
+    font-size: 12px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .add-camp-section {
+    padding: 80px 0 10px 0;
+  }
+  
+  .add-camp-btn {
+    padding: 8px 30px;
+    font-size: 14px;
+  }
+  
+  .camps-list-section {
+    padding: 90px 0 60px 0; /* Adequate padding for users on small screens */
+  }
+  
+  .camps-list-section.with-add-btn {
+    padding-top: 20px; /* Reduced padding when Add Camp button is present */
+  }
+  
+  .camp-card {
+    padding: 15px;
+  }
+  
+  .info-row {
+    flex-direction: column;
+    margin-bottom: 8px;
+  }
+  
+  .info-label {
+    min-width: auto;
+    margin-bottom: 2px;
+    font-size: 11px;
+  }
+  
+  .info-value {
+    font-size: 11px;
+    padding-left: 10px;
+  }
+}
+
+/* High-Resolution Screens (1440px and above) */
+@media (min-width: 1441px) {
+  .add-camp-section {
+    padding: 140px 0 30px 0;
+  }
+  
+  .add-camp-btn {
+    padding: 16px 60px;
+    font-size: 20px;
+  }
+  
+  .camps-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+  }
+  
+  .camp-card {
+    max-width: 450px;
+    padding: 35px;
+  }
+  
+  .avatar-icon {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .avatar-icon svg {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .info-row {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  
+  .info-label {
+    min-width: 140px;
+  }
+  
+  .register-btn {
+    padding: 12px 35px;
+    font-size: 15px;
+  }
+}
+
+/* Ultra-wide screens (1920px and up) */
+@media (min-width: 1920px) {
+  .add-camp-section {
+    padding: 160px 0 40px 0;
+  }
+  
+  .add-camp-btn {
+    padding: 18px 70px;
+    font-size: 22px;
+  }
+  
+  .camps-list-container {
+    max-width: 1900px;
+    padding: 0 80px;
+  }
+  
+  .camps-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 45px;
+  }
+  
+  .camp-card {
+    max-width: 480px;
+    padding: 40px;
+  }
+  
+  .info-row {
+    font-size: 17px;
+    margin-bottom: 14px;
+  }
+  
+  .info-label {
+    min-width: 150px;
+  }
+  
+  .register-btn {
+    padding: 14px 40px;
+    font-size: 16px;
+  }
+}

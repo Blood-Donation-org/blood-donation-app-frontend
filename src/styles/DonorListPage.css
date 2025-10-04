@@ -1,0 +1,507 @@
+/* Reset + Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+.donor-list-page {
+  /* min-height: 100vh; */
+  background-color: #f8f9fa;
+  padding-top: 80px; /* Space for fixed navbar */
+}
+
+/* Horizontal Search Section */
+.search-sectionn {
+  background-color: #f8f9fa;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.search-form-horizontal {
+  display: flex;
+  align-items: end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.form-group-horizontal {
+  flex: 1;
+  min-width: 200px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Custom Dropdown Styles */
+.dropdown-container {
+  position: relative;
+}
+
+.custom-dropdown {
+  background-color: #E9ECEF;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #6C757D;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  user-select: none;
+  min-height: 44px;
+  width: 100%;
+}
+
+.custom-dropdown:hover {
+  background-color: #DEE2E6;
+}
+
+.custom-dropdown.open {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background-color: #DEE2E6;
+}
+
+.dropdown-selected {
+  flex: 1;
+  text-align: left;
+}
+
+.dropdown-arrow {
+  color: #6C757D !important;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 10px;
+}
+
+.custom-dropdown.open .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.dropdown-options {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #DEE2E6;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dropdown-option {
+  padding: 10px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #F1F3F4;
+}
+
+.dropdown-option:hover {
+  background-color: #F8F9FA;
+}
+
+.dropdown-option:last-child {
+  border-bottom: none;
+}
+
+/* Search Button Container */
+.search-button-container {
+  display: flex;
+  align-items: end;
+}
+
+.search-btn {
+  background-color: #CD2F2F;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.search-btn:hover {
+  background-color: #B02A2A;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(205,47,47,0.3);
+}
+
+.search-btn:active {
+  transform: translateY(0);
+}
+
+/* Donor List Section */
+.donor-list-section {
+  padding: 15px 0;
+  background-color: #f8f9fa;
+}
+
+.donor-list-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Donors Grid */
+.donors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  justify-items: center;
+}
+
+/* Donor Card */
+.donor-card {
+  background-color: #F8D7DA;
+  border-radius: 15px;
+  padding: 25px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+.donor-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Donor Avatar */
+.donor-avatar {
+  margin-bottom: 20px;
+}
+
+.avatar-icon {
+  width: 60px;
+  height: 60px;
+  background-color: #6C757D;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+/* Donor Info */
+.donor-info {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.info-row {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.info-label {
+  font-weight: bold;
+  color: #333;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.info-value {
+  color: #555;
+  word-break: break-word;
+  flex: 1;
+}
+
+/* Request Button */
+.request-btn {
+  background-color: #CD2F2F;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 30px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.request-btn:hover {
+  background-color: #B02A2A;
+  transform: translateY(-1px);
+}
+
+.request-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Styles */
+
+/* Large Desktop (1200px+) */
+@media (min-width: 1200px) {
+  .search-form-horizontal {
+    gap: 30px;
+  }
+  
+  .form-group-horizontal {
+    min-width: 250px;
+  }
+  
+  .donors-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+  }
+  
+  .donor-card {
+    max-width: 400px;
+    padding: 30px;
+  }
+  
+  .info-row {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+  
+  .info-label {
+    min-width: 150px;
+  }
+}
+
+/* Tablet (768px - 1199px) */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .search-form-horizontal {
+    gap: 15px;
+  }
+  
+  .form-group-horizontal {
+    min-width: 180px;
+  }
+  
+  .donors-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .donor-card {
+    max-width: 100%;
+  }
+}
+
+/* Mobile Large (600px - 767px) */
+@media (max-width: 767px) and (min-width: 600px) {
+  .donor-list-page {
+    padding-top: 70px; /* Adjusted for mobile navbar */
+  }
+  
+  .search-section {
+    height: 160px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-form-horizontal {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .form-group-horizontal {
+    min-width: 100%;
+  }
+  
+  .search-button-container {
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .search-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .donor-list-section {
+    padding: 10px 0;
+  }
+  
+  .donors-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .donor-card {
+    max-width: 100%;
+    padding: 20px;
+  }
+  
+  .info-row {
+    font-size: 13px;
+  }
+  
+  .info-label {
+    min-width: 120px;
+    font-size: 12px;
+  }
+  
+  .info-value {
+    font-size: 13px;
+  }
+}
+
+/* Mobile Small (below 600px) */
+@media (max-width: 599px) {
+  .donor-list-page {
+    padding-top: 70px; /* Adjusted for mobile navbar */
+  }
+  
+  .search-section {
+    height: 180px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-container {
+    padding: 0 15px;
+  }
+  
+  .search-form-horizontal {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .form-group-horizontal {
+    min-width: 100%;
+  }
+  
+  .custom-dropdown {
+    padding: 10px 12px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+  
+  .form-label {
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  
+  .search-button-container {
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .search-btn {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .donor-list-section {
+    padding: 10px 0;
+  }
+  
+  .donor-list-container {
+    padding: 0 15px;
+  }
+  
+  .donors-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+  
+  .donor-card {
+    padding: 20px 15px;
+  }
+  
+  .avatar-icon {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .avatar-icon svg {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .info-row {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .info-label {
+    min-width: 110px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  
+  .info-value {
+    font-size: 12px;
+  }
+  
+  .request-btn {
+    padding: 8px 25px;
+    font-size: 12px;
+  }
+}
+
+/* Extra Small Mobile (below 400px) */
+@media (max-width: 399px) {
+  .donor-card {
+    padding: 15px 10px;
+  }
+  
+  .info-row {
+    flex-direction: column;
+    margin-bottom: 8px;
+  }
+  
+  .info-label {
+    min-width: auto;
+    margin-bottom: 2px;
+    font-size: 10px;
+  }
+  
+  .info-value {
+    font-size: 11px;
+    padding-left: 5px;
+  }
+  
+  .request-btn {
+    padding: 6px 20px;
+    font-size: 11px;
+  }
+}

@@ -1,0 +1,263 @@
+/* Reset + Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* About Hero Section */
+.about-hero-section {
+  background-color: #f8f9fa;
+  padding: 100px 0 40px;
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.about-hero-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  justify-content: center;
+}
+
+.doctors-team-image {
+  background-color: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.team-img {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* Vision and Mission Section */
+.vision-mission-section {
+  padding: 60px 0 100px;
+  background-color: #f8f9fa;
+}
+
+.vision-mission-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Card Styles */
+.vision-card,
+.mission-card {
+  background-color: #CD2F2F;
+  border-radius: 15px;
+  padding: 0;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  min-height: 120px;
+}
+
+.card-header {
+  background-color: #B02A2A;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  margin: 0;
+}
+
+.card-content {
+  flex: 1;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+}
+
+.card-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: white;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .team-img {
+    width: 350px;
+    height: 260px;
+  }
+  
+  .card-title {
+    font-size: 20px;
+  }
+  
+  .card-text {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .vision-card,
+  .mission-card {
+    flex-direction: column;
+    min-height: auto;
+  }
+  
+  .card-header {
+    min-width: auto;
+    padding: 20px;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .team-img {
+    width: 300px;
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-hero-section {
+    padding: 80px 0 30px;
+  }
+  
+  .vision-mission-section {
+    padding: 40px 0 80px;
+  }
+  
+  .about-hero-container,
+  .vision-mission-container {
+    padding: 0 20px;
+  }
+  
+  .team-img {
+    width: 280px;
+    height: 200px;
+  }
+  
+  .card-header,
+  .card-content {
+    padding: 15px;
+  }
+  
+  .card-title {
+    font-size: 18px;
+  }
+  
+  .card-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .team-img {
+    width: 250px;
+    height: 180px;
+  }
+  
+  .doctors-team-image {
+    padding: 15px;
+  }
+  
+  .card-title {
+    font-size: 16px;
+  }
+  
+  .card-text {
+    font-size: 13px;
+  }
+  
+  .vision-mission-container {
+    gap: 20px;
+  }
+}
+
+/* High-Resolution Screens (1440px and above) */
+@media (min-width: 1441px) {
+  .team-img {
+    width: 450px;
+    height: 340px;
+  }
+  
+  .card-title {
+    font-size: 24px;
+  }
+  
+  .card-text {
+    font-size: 17px;
+  }
+  
+  .card-header {
+    min-width: 220px;
+    padding: 35px;
+  }
+  
+  .card-content {
+    padding: 35px;
+  }
+}
+
+/* Ultra-wide screens (1920px and up) */
+@media (min-width: 1920px) {
+  .about-hero-container,
+  .vision-mission-container {
+    max-width: 1900px;
+    padding: 0 80px;
+  }
+  
+  .team-img {
+    width: 500px;
+    height: 380px;
+  }
+  
+  .card-title {
+    font-size: 26px;
+  }
+  
+  .card-text {
+    font-size: 18px;
+  }
+  
+  .card-header {
+    min-width: 240px;
+    padding: 40px;
+  }
+  
+  .card-content {
+    padding: 40px;
+  }
+  
+  .vision-mission-container {
+    gap: 40px;
+  }
+}
