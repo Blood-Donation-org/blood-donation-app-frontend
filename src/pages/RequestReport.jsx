@@ -15,7 +15,7 @@ const RequestReport = () => {
     setUserRole(userData?.user?.role);
 
     // Load requests based on user role
-    if (userData?.role === 'admin') {
+    if (userData?.user.role === 'admin') {
       loadAllRequests();
     } else {
       loadUserRequests(userData?.id || userData?.userId);
