@@ -144,6 +144,10 @@ const DoctorBloodRequest = () => {
       form.append('additionalNotes', formData.additionalNotes);
       form.append('status', 'pending');
       form.append('confirmationStatus', 'unconfirmed');
+      // Add logged-in user ID
+      if (userData && userData.user && userData.user.id) {
+        form.append('user', userData.user.id);
+      }
       // dtFormImage is a dataURL, get the original file from input
       const fileInput = document.getElementById('dtFormUpload');
       if (fileInput && fileInput.files[0]) {

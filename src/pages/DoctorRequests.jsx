@@ -28,20 +28,9 @@ const DoctorRequests = () => {
 
   const loadDoctorRequests = async (doctorId) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/v1/blood-requests/get-all');
-      const allRequests = response.data.bloodRequests || response.data || [];
-      console.log('Fetched blood requests from backend:', allRequests);
-      console.log('Current doctorId:', doctorId);
-      // If doctorId exists in response, filter by doctorId, else show all requests
-      let doctorRequests;
-      if (allRequests.length > 0 && 'doctorId' in allRequests[0]) {
-        doctorRequests = allRequests.filter(req => req.doctorId === doctorId);
-        console.log('Filtered doctor requests:', doctorRequests);
-      } else {
-        doctorRequests = allRequests; // fallback: show all requests
-        console.log('No doctorId in requests, showing all:', doctorRequests);
-      }
-      setRequests(doctorRequests);
+      const response = await axios.get(`http://localhost:5000/api/v1/blood-requests/get-by-user/${doctorId}`);
+      const userRequests = response.data.bloodRequests || response.data || [];
+      setRequests(userRequests);
     } catch (error) {
       console.error('Error fetching blood requests:', error);
       setRequests([]);
@@ -208,35 +197,35 @@ const DoctorRequests = () => {
                       <span className="blood-type-badge">{request.bloodType}</span>
                     </td>
                     <td data-label="Status" className="status">
+                      {request.status || 'N/A'}
+                    </td>
+                    <td data-label="Confirmation Status" className="confirmation-status">
                       <select
-                        value={request.status}
+                        value={request.confirmationStatus || 'unconfirmed'}
                         onChange={async (e) => {
-                          const newStatus = e.target.value;
+                          const newConfirmation = e.target.value;
                           try {
                             const res = await axios.patch(
-                              `http://localhost:5000/api/v1/blood-requests/update-status/${request._id || request.id}`,
-                              { status: newStatus }
+                              `http://localhost:5000/api/v1/blood-requests/update-confirmation/${request._id || request.id}`,
+                              { confirmationStatus: newConfirmation }
                             );
-                            alert(res.data.message || 'Status updated successfully');
+                            alert(res.data.message || 'Confirmation status updated successfully');
                             // Update local state
                             setRequests(prev => prev.map(r =>
                               (r._id || r.id) === (request._id || request.id)
-                                ? { ...r, status: newStatus }
+                                ? { ...r, confirmationStatus: newConfirmation }
                                 : r
                             ));
                           } catch (error) {
-                            alert(error.response?.data?.message || 'Failed to update status');
+                            alert(error.response?.data?.message || 'Failed to update confirmation status');
                           }
                         }}
-                        className="status-dropdown"
+                        className="confirmation-dropdown"
                       >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Available</option>
-                        <option value="not_available">Not Available</option>
+                        <option value="unconfirmed">Unconfirmed</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="rejected">Rejected</option>
                       </select>
-                    </td>
-                    <td data-label="Confirmation Status" className="confirmation-status">
-                      {request.confirmationStatus || 'N/A'}
                     </td>
                   </tr>
                 ))}
