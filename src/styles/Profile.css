@@ -59,6 +59,7 @@
   font-size: 1.25rem;
   opacity: 0.9;
   margin-bottom: 1rem;
+  color: #fff !important; /* Ensure text is white */
 }
 
 .role-badge {
@@ -112,6 +113,7 @@
 .save-btn {
   background-color: #28a745;
   color: white;
+  margin-bottom: 10px;
 }
 
 .save-btn:hover {
@@ -377,6 +379,7 @@ input:checked + .toggle-slider:before {
   
   .profile-role {
     font-size: 1.125rem;
+    color: w;
   }
   
   .edit-actions {
