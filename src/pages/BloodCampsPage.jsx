@@ -1,3 +1,4 @@
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -6,6 +7,10 @@ import '../styles/BloodCampsPage.css';
 
 const BloodCampsPage = () => {
   const [userRole, setUserRole] = useState(null);
+  const [camps, setCamps] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [registeredCamps, setRegisteredCamps] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,79 +21,82 @@ const BloodCampsPage = () => {
     }
   }, []);
 
-  // Sample camp data - you can replace this with API data
-  const camps = [
-    {
-      id: 1,
-      name: "Colombo Blood Drive",
-      location: "Colombo Town Hall",
-      date: "2025-08-05",
-      time: "9:00 AM - 2:00 PM",
-      contact: "071-1234567",
-      email: "colombo.camp@gmail.com",
-      organizer: "Sri Lanka Red Cross",
-      message: "Open to all blood groups. Registration required."
-    },
-    {
-      id: 2,
-      name: "Kalutara Health Camp",
-      location: "Kalutara Hospital",
-      date: "2025-08-10",
-      time: "10:00 AM - 3:00 PM",
-      contact: "077-9876543",
-      email: "kalutara.camp@gmail.com",
-      organizer: "LifeLink Foundation",
-      message: "Special focus on O+ and O- donors."
-    },
-    {
-      id: 3,
-      name: "Gampaha Community Camp",
-      location: "Gampaha Public Grounds",
-      date: "2025-08-15",
-      time: "8:00 AM - 1:00 PM",
-      contact: "070-4567891",
-      email: "gampaha.camp@gmail.com",
-      organizer: "Health Ministry",
-      message: "Bring ID for registration."
-    },
-    {
-      id: 4,
-      name: "Galle Blood Donation Event",
-      location: "Galle Municipal Hall",
-      date: "2025-08-20",
-      time: "9:30 AM - 2:30 PM",
-      contact: "076-6543210",
-      email: "galle.camp@gmail.com",
-      organizer: "Sri Lanka Army",
-      message: "Free health check-up included."
-    },
-    {
-      id: 5,
-      name: "Kandy Charity Camp",
-      location: "Kandy Hospital",
-      date: "2025-08-25",
-      time: "10:00 AM - 3:00 PM",
-      contact: "071-7890123",
-      email: "kandy.camp@gmail.com",
-      organizer: "Rotary Club",
-      message: "Donors will receive certificates."
-    },
-    {
-      id: 6,
-      name: "Matara Blood Drive",
-      location: "Matara Public Park",
-      date: "2025-08-30",
-      time: "8:30 AM - 1:30 PM",
-      contact: "077-3456789",
-      email: "matara.camp@gmail.com",
-      organizer: "Local NGO",
-      message: "Urgent need for AB+ donors."
-    }
-  ];
+  useEffect(() => {
+    const fetchCamps = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/camps');
+        // Assuming response.data is an array of camps
+        setCamps(response.data.camps || response.data || []);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching camps:', err);
+        setError(`Failed to fetch camps: ${err.message || err}`);
+        setLoading(false);
+      }
+    };
+    fetchCamps();
+  }, []);
 
-  const handleRegister = (campName) => {
-    alert(`Registration sent for ${campName}`);
-    // Add your registration logic here
+  // Check registration status for each camp after camps are loaded
+  useEffect(() => {
+    const checkRegistrations = async () => {
+      const storedUserData = JSON.parse(localStorage.getItem('userData'));
+      const userId = storedUserData?.user?.id;
+      if (!userId || camps.length === 0) return;
+      const results = {};
+      await Promise.all(
+        camps.map(async (camp) => {
+          const campId = camp._id || camp.id;
+          try {
+            const res = await axios.get('http://localhost:5000/api/v1/camp-registrations/check', {
+              params: { userId, campId }
+            });
+            results[campId] = res.data.registered;
+          } catch (err) {
+            console.error(`Error checking registration for camp ${campId}:`, err);
+            results[campId] = false;
+          }
+        })
+      );
+      setRegisteredCamps(results);
+    };
+    checkRegistrations();
+  }, [camps]);
+
+  const handleRegister = async (campId) => {
+    // Get userId from localStorage
+    const storedUserData = JSON.parse(localStorage.getItem('userData'));
+    const userId = storedUserData?.user?.id;
+    const camp = camps.find(c => c._id === campId || c.id === campId);
+    console.log('Register button clicked');
+    console.log('userId:', userId);
+    console.log('campId:', campId);
+    console.log('camp object:', camp);
+
+    if (!userId || !campId) {
+      alert('User or camp information missing.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/camp-registrations/register', {
+        userId,
+        campId
+      });
+      console.log('Registration response:', response);
+      if (response.status === 201) {
+        alert('Registration successful!');
+      } else {
+        alert(response.data.message || 'Registration failed.');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
+    }
   };
 
   const handleAddCamp = () => {
@@ -115,65 +123,80 @@ const BloodCampsPage = () => {
       {/* Camps List Section */}
       <div className={`camps-list-section ${userRole === 'admin' ? 'with-add-btn' : ''}`}>
         <div className="camps-list-container">
-          <div className="camps-grid">
-            {camps.map((camp) => (
-              <div key={camp.id} className="camp-card">
-                <div className="camp-avatar">
-                  <div className="avatar-icon">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="currentColor"/>
-                      <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="currentColor"/>
-                    </svg>
-                  </div>
-                </div>
-                
-                <div className="camp-info">
-                  <div className="info-row">
-                    <span className="info-label">Name :</span>
-                    <span className="info-value">{camp.name}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Location :</span>
-                    <span className="info-value">{camp.location}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Date :</span>
-                    <span className="info-value">{camp.date}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Time :</span>
-                    <span className="info-value">{camp.time}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Contact :</span>
-                    <span className="info-value">{camp.contact}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">E-mail :</span>
-                    <span className="info-value">{camp.email}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Organizer :</span>
-                    <span className="info-value">{camp.organizer}</span>
-                  </div>
-                  <div className="info-row">
-                    <span className="info-label">Message :</span>
-                    <span className="info-value">{camp.message}</span>
-                  </div>
-                </div>
+          {(() => {
+            if (loading) {
+              return <div className="loading">Loading camps...</div>;
+            }
+            if (error) {
+              return <div className="error">{error}</div>;
+            }
+            return (
+              <div className="camps-grid">
+                {camps.length === 0 ? (
+                  <div className="no-camps">No camps available.</div>
+                ) : (
+                  camps.map((camp) => (
+                    <div key={camp._id || camp.id} className="camp-card">
+                      <div className="camp-avatar">
+                        <div className="avatar-icon">
+                          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" fill="currentColor"/>
+                            <path d="M12 14C7.58172 14 4 17.5817 4 22H20C20 17.5817 16.4183 14 12 14Z" fill="currentColor"/>
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      <div className="camp-info">
+                        <div className="info-row">
+                          <span className="info-label">Name :</span>
+                          <span className="info-value">{camp.campName || camp.name}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Location :</span>
+                          <span className="info-value">{camp.place || camp.location}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Date :</span>
+                          <span className="info-value">{camp.date}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Time :</span>
+                          <span className="info-value">{camp.time}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Contact :</span>
+                          <span className="info-value">{camp.contactNumber || camp.contact}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">E-mail :</span>
+                          <span className="info-value">{camp.emailAddress || camp.email}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Organizer :</span>
+                          <span className="info-value">{camp.organizer}</span>
+                        </div>
+                        <div className="info-row">
+                          <span className="info-label">Message :</span>
+                          <span className="info-value">{camp.message}</span>
+                        </div>
+                      </div>
 
-                {/* Register Button - Only visible for regular users */}
-                {userRole !== 'admin' && (
-                  <button 
-                    className="register-btn"
-                    onClick={() => handleRegister(camp.name)}
-                  >
-                    Register
-                  </button>
+                      {/* Register Button - Only visible for regular users */}
+                      {userRole !== 'admin' && (
+                        <button 
+                          className="register-btn"
+                          onClick={() => handleRegister(camp._id || camp.id)}
+                          disabled={registeredCamps[camp._id || camp.id]}
+                        >
+                          {registeredCamps[camp._id || camp.id] ? 'You Are Registered' : 'Register'}
+                        </button>
+                      )}
+                    </div>
+                  ))
                 )}
               </div>
-            ))}
-          </div>
+            );
+          })()}
         </div>
       </div>
     </div>

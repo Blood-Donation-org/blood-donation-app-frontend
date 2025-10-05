@@ -1,25 +1,25 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import SignInPage from './pages/SignInPage';
-import AboutUs from './pages/AboutUsPage';
-import DonorListPage from './pages/DonorListPage';
-import SearchDonorPage from './pages/SearchDonorPage';
-import SearchResultsPage from './pages/SearchResults';
-import BloodCampsPage from './pages/BloodCampsPage';
-import SplashScreen from './pages/SplashScreen';
-import ContactBlood from './pages/ContactBlood';
-import Stock from './pages/Stock';
-import StockResult from './pages/StockResult';
-import RegisterPage from './pages/RegisterPage';
-import Profile from './pages/Profile';
-import ChangePassword from './pages/ChangePassword';
-import RequestReport from './pages/RequestReport';
-import AddCampPage from './pages/AddCampPage';
-import DoctorManagement from './pages/DoctorManagement';
+import { useEffect, useState } from 'react';
+import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import AboutUs from './pages/AboutUsPage';
+import AddCampPage from './pages/AddCampPage';
+import BloodCampsPage from './pages/BloodCampsPage';
+import ChangePassword from './pages/ChangePassword';
+import ContactBlood from './pages/ContactBlood';
+import DoctorManagement from './pages/DoctorManagement';
 import DoctorRequests from './pages/DoctorRequests';
+import DonorListPage from './pages/DonorListPage';
+import LandingPage from './pages/LandingPage';
+import Profile from './pages/Profile';
+import RegisterPage from './pages/RegisterPage';
+import RequestReport from './pages/RequestReport';
+import SearchDonorPage from './pages/SearchDonorPage';
+import SearchResultsPage from './pages/SearchResults';
+import SignInPage from './pages/SignInPage';
+import SplashScreen from './pages/SplashScreen';
+import Stock from './pages/Stock';
+import StockResult from './pages/StockResult';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -166,7 +166,7 @@ function App() {
             }
           />
           <Route
-            path="/stock-result/:bloodType"
+            path="/stock-result/:id"
             element={
               <ProtectedRoute>
                 <StockResult />

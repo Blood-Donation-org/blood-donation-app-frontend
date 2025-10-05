@@ -1,199 +1,6 @@
-// import React, { useState } from 'react';
-// import '../styles/ContactBlood.css';
-// import Navbar from '../components/Navbar';
-// const ContactBlood = () => {
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     location: '',
-//     phone: '',
-//     message: '',
-//     bloodGroup: ''
-//   });
 
-//   const [isSubmitting, setIsSubmitting] = useState(false);
-
-//   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value
-//     });
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     setIsSubmitting(true);
-    
-//     // Simulate API call
-//     try {
-//       // Replace with actual API call
-//       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-//       alert('Message sent successfully! We will contact you soon.');
-//       setFormData({
-//         name: '',
-//         email: '',
-//         phone: '',
-//         message: '',
-//         bloodGroup: ''
-//       });
-//     // } catch (error) {
-//     //   alert('Error sending message. Please try again.');
-//     // } finally {
-//     //   setIsSubmitting(false);
-//     // }
-//     } catch{
-//       alert('Error sending message. Please try again.');
-//     } finally {
-//       setIsSubmitting(false);
-//     }
-//   };
-
-//   return (
-//     <>
-//       <Navbar/>
-//       <div className="contact-blood-page">
-//         <div className="contact-container">
-//           <div className="contact-content">
-//             <div className="image-section">
-//               <div className="image-wrapper">
-//                 <img 
-//                   src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-//                   alt="Medical professional"
-//                   className="contact-hero-image"
-//                 />
-//                 <div className="image-overlay">
-//                   <div className="overlay-content">
-//                     <h2 className="overlay-title">We're Here to Help</h2>
-//                     <p className="overlay-text">
-//                       Our medical team is ready to assist you with your blood donation needs. 
-//                       Every request is handled with care and urgency.
-//                     </p>
-//                     <div className="stats-grid">
-//                       <div className="stat-item">
-//                         <span className="stat-number">24/7</span>
-//                         <span className="stat-label">Available</span>
-//                       </div>
-//                       <div className="stat-item">
-//                         <span className="stat-number">5000+</span>
-//                         <span className="stat-label">Lives Saved</span>
-//                       </div>
-//                       <div className="stat-item">
-//                         <span className="stat-number">100%</span>
-//                         <span className="stat-label">Safe</span>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-
-//             <div className="form-section">
-//               <div className="form-header">
-//                 <h1 className="contact-title">Contact For Blood</h1>
-//                 <p className="contact-subtitle">Fill following form for blood</p>
-//               </div>
-
-//               <form className="contact-form" onSubmit={handleSubmit}>
-//                 <div className="form-group">
-//                   <input
-//                     type="text"
-//                     name="name"
-//                     className="form-input"
-//                     placeholder="Your Name"
-//                     value={formData.name}
-//                     onChange={handleChange}
-//                     required
-//                   />
-//                 </div>
-
-//                 <div className="form-group">
-//                   <input
-//                     type="text" 
-//                     name="location"
-//                     className="form-input"
-//                     placeholder="Location"
-//                     value={formData.location}
-//                     onChange={handleChange}
-//                     required
-//                   />
-//                 </div>
-
-//                 <div className="form-group">
-//                   <input
-//                     type="tel"
-//                     name="phone"
-//                     className="form-input"
-//                     placeholder="Phone Number"
-//                     value={formData.phone}
-//                     onChange={handleChange}
-//                     required
-//                   />
-//                 </div>
-
-//                 <div className="form-group">
-//                   <textarea
-//                     name="message"
-//                     className="form-textarea"
-//                     placeholder="Message"
-//                     rows="4"
-//                     value={formData.message}
-//                     onChange={handleChange}
-//                     required
-//                   ></textarea>
-//                 </div>
-
-//                 <div className="form-group">
-//                   <div className="select-wrapper">
-//                     <select
-//                       name="bloodGroup"
-//                       className="form-select"
-//                       value={formData.bloodGroup}
-//                       onChange={handleChange}
-//                       required
-//                     >
-//                       <option value="">Blood Group</option>
-//                       {bloodGroups.map((group) => (
-//                         <option key={group} value={group}>
-//                           {group}
-//                         </option>
-//                       ))}
-//                     </select>
-//                     <div className="select-arrow">
-//                       <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
-//                         <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-//                       </svg>
-//                     </div>
-//                   </div>
-//                 </div>
-
-//                 <button 
-//                   type="submit" 
-//                   className={`submit-btn ${isSubmitting ? 'submitting' : ''}`}
-//                   disabled={isSubmitting}
-//                 >
-//                   {isSubmitting ? (
-//                     <>
-//                       <div className="loading-spinner"></div>
-//                       Sending...
-//                     </>
-//                   ) : (
-//                     'Send Message'
-//                   )}
-//                 </button>
-//               </form>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default ContactBlood;
-
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/ContactBlood.css';
@@ -202,8 +9,9 @@ const DoctorBloodRequest = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dtFormImage, setDtFormImage] = useState(null);
+  const [dtFormImage, setDtFormImage] = useState(null); // DataURL for preview
   const [dtFormPreview, setDtFormPreview] = useState(null);
+  const [dtFormFile, setDtFormFile] = useState(null); // Actual file object
   const [formData, setFormData] = useState({
     // Patient Details
     patientName: '',
@@ -223,10 +31,10 @@ const DoctorBloodRequest = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
-    if (user && user.role === 'doctor') {
+    if (user && user.user.role === 'doctor') {
       setUserData(user);
     } else {
-      navigate('/login');
+      navigate('/');
     }
   }, [navigate]);
 
@@ -253,6 +61,8 @@ const DoctorBloodRequest = () => {
         return;
       }
 
+      setDtFormFile(file); // Track file object for upload
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageDataUrl = e.target.result;
@@ -266,6 +76,7 @@ const DoctorBloodRequest = () => {
   const removeImage = () => {
     setDtFormImage(null);
     setDtFormPreview(null);
+    setDtFormFile(null);
     // Reset file input
     const fileInput = document.getElementById('dtFormUpload');
     if (fileInput) {
@@ -308,8 +119,8 @@ const DoctorBloodRequest = () => {
       return false;
     }
 
-    // Check if DT form is uploaded
-    if (!dtFormImage) {
+    // Check if DT form file is uploaded
+    if (!dtFormFile) {
       alert('Please upload the DT form image');
       return false;
     }
@@ -319,67 +130,41 @@ const DoctorBloodRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     setIsSubmitting(true);
-
     try {
-      // Create request object
-      const request = {
-        id: 'REQ-' + Date.now().toString(36).toUpperCase(),
-        doctorId: userData.id,
-        doctorName: userData.name,
-        requestDate: new Date().toISOString(),
-        status: 'pending',
-        patientDetails: {
-          name: formData.patientName.trim(),
-          age: parseInt(formData.patientAge),
-          gender: formData.patientGender,
-          bloodType: formData.bloodType
-        },
-        requestDetails: {
-          unitsRequired: parseInt(formData.unitsRequired),
-          urgency: formData.urgency,
-          medicalCondition: formData.medicalCondition.trim(),
-          wardNumber: formData.wardNumber.trim(),
-          contactNumber: formData.contactNumber.trim(),
-          surgeryDate: formData.surgeryDate || null,
-          additionalNotes: formData.additionalNotes.trim(),
-          hospitalName: userData.hospitalAffiliation || 'Unknown Hospital'
-        },
-        dtFormImage: dtFormImage
-      };
+      // Prepare FormData for API
+      const form = new FormData();
+      form.append('patientName', formData.patientName);
+      form.append('age', formData.patientAge);
+      form.append('gender', formData.patientGender);
+      form.append('bloodType', formData.bloodType);
+      form.append('unitsRequired', formData.unitsRequired);
+      form.append('urgencyLevel', formData.urgency); // backend expects urgencyLevel
+      form.append('wardNumber', formData.wardNumber);
+      form.append('contactNumber', formData.contactNumber);
+      form.append('medicalCondition', formData.medicalCondition);
+      form.append('surgeryDate', formData.surgeryDate);
+      form.append('additionalNotes', formData.additionalNotes);
+      form.append('status', 'pending');
+      form.append('confirmationStatus', 'unconfirmed');
+      // Add logged-in user ID
+      if (userData && userData.user && userData.user.id) {
+        form.append('user', userData.user.id);
+      }
+      // Use the actual file object from state
+      if (dtFormFile) {
+        form.append('dtFormUpload', dtFormFile);
+      }
 
-      // Save to localStorage
-      const existingRequests = JSON.parse(localStorage.getItem('doctorBloodRequests')) || [];
-      existingRequests.push(request);
-      localStorage.setItem('doctorBloodRequests', JSON.stringify(existingRequests));
+      // Send to backend
+      const response = await axios.post(
+        'http://localhost:5000/api/v1/blood-requests/create',
+        form,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
 
-      // Send notification to admin
-      const adminNotifications = JSON.parse(localStorage.getItem('admin_notifications')) || [];
-      const notification = {
-        id: Date.now(),
-        type: 'blood_request',
-        doctorName: userData.name,
-        hospitalName: userData.hospitalAffiliation || 'Unknown Hospital',
-        requestId: request.id,
-        patientName: formData.patientName,
-        bloodType: formData.bloodType,
-        urgency: formData.urgency,
-        unitsRequired: formData.unitsRequired,
-        timestamp: new Date(),
-        isRead: false,
-        message: `New blood request from Dr. ${userData.name} for patient ${formData.patientName}`
-      };
-      adminNotifications.unshift(notification);
-      localStorage.setItem('admin_notifications', JSON.stringify(adminNotifications));
-
-      // Success message
-      alert('Blood request submitted successfully! You will be notified once it\'s processed.');
-      
+      alert(response.data.message || 'Blood request submitted successfully!');
       // Reset form
       setFormData({
         patientName: '',
@@ -394,15 +179,13 @@ const DoctorBloodRequest = () => {
         surgeryDate: '',
         additionalNotes: ''
       });
-      setDtFormImage(null);
-      setDtFormPreview(null);
-
-      // Redirect to requests page
+  setDtFormImage(null);
+  setDtFormPreview(null);
+  setDtFormFile(null);
       navigate('/doctor-requests');
-
     } catch (error) {
       console.error('Error submitting request:', error);
-      alert('An error occurred while submitting the request. Please try again.');
+      alert(error.response?.data?.message || 'An error occurred while submitting the request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
