@@ -233,8 +233,13 @@ const NotificationDropdown = ({ userRole }) => {
     }
   };
 
-  // Show all notifications from backend
-  const getFilteredNotifications = () => notifications;
+  // Filter notifications for user role 'user' to only show donation_reminder type
+  const getFilteredNotifications = () => {
+    if (userRole === 'user') {
+      return notifications.filter(n => n.type === 'donation_reminder');
+    }
+    return notifications;
+  };
 
   return (
     <div className="notification-container">
