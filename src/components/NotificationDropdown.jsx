@@ -14,7 +14,6 @@ const NotificationDropdown = ({ userRole }) => {
     const fetchNotifications = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/v1/notifications/get-all');
-        console.log('Notifications API response:', response);
         const allNotifications = response.data.notifications || [];
         setNotifications(allNotifications);
         const unread = allNotifications.filter(notif => notif.status !== 'read').length;

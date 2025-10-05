@@ -74,6 +74,129 @@ const RequestReport = () => {
     return <span className="confirmation-badge confirmation-not-received">Not Received</span>;
   };
 
+  const loadAllRequests = () => {
+    setLoading(true);
+    // Admin sees all requests from all users
+    let allRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
+
+    // If no requests exist or requests are missing required fields, create sample data
+    if (allRequests.length === 0 || allRequests.some(r => !isValidRequest(r))) {
+      const sampleRequests = [
+        {
+          id: 'REQ001',
+          userId: 'user1',
+          patientName: 'John Doe',
+          doctorName: 'Dr. Smith Williams',
+          doctorId: 'DOC001',
+          bloodType: 'A+',
+          wardNumber: 'W-204',
+          status: 'pending',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ002',
+          userId: 'user2',
+          patientName: 'Jane Smith',
+          doctorName: 'Dr. Emily Johnson',
+          doctorId: 'DOC002',
+          bloodType: 'O-',
+          wardNumber: 'W-105',
+          status: 'approved',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ003',
+          userId: 'user3',
+          patientName: 'Michael Johnson',
+          doctorName: 'Dr. David Brown',
+          doctorId: 'DOC003',
+          bloodType: 'B+',
+          wardNumber: 'W-301',
+          status: 'not_available',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ004',
+          userId: 'user1',
+          patientName: 'Sarah Wilson',
+          doctorName: 'Dr. Smith Williams',
+          doctorId: 'DOC001',
+          bloodType: 'AB+',
+          wardNumber: 'W-108',
+          status: 'pending',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ005',
+          userId: 'user4',
+          patientName: 'Robert Davis',
+          doctorName: 'Dr. Lisa Garcia',
+          doctorId: 'DOC004',
+          bloodType: 'O+',
+          wardNumber: 'W-215',
+          status: 'approved',
+          confirmation: 'not_received'
+        }
+      ];
+      localStorage.setItem('bloodRequests', JSON.stringify(sampleRequests));
+      setRequests(sampleRequests);
+    } else {
+      // Only show requests with all required fields
+      setRequests(allRequests.filter(isValidRequest));
+    }
+    return <span className="confirmation-badge confirmation-not-received">Not Received</span>;
+  };
+
+  const loadUserRequests = (userId) => {
+    setLoading(true);
+    const allRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
+    let userRequests = allRequests.filter(request => request.userId === userId && isValidRequest(request));
+    // If no valid requests exist, create sample data
+    if (userRequests.length === 0 && userId) {
+      const sampleRequests = [
+        {
+          id: 'REQ001',
+          userId: userId,
+          patientName: 'John Doe',
+          doctorName: currentUser?.name || 'Dr. Smith Williams',
+          doctorId: 'DOC001',
+          bloodType: 'A+',
+          wardNumber: 'W-204',
+          status: 'approved',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ002',
+          userId: userId,
+          patientName: 'Jane Smith',
+          doctorName: currentUser?.name || 'Dr. Smith Williams',
+          doctorId: 'DOC001',
+          bloodType: 'O-',
+          wardNumber: 'W-105',
+          status: 'pending',
+          confirmation: 'not_received'
+        },
+        {
+          id: 'REQ003',
+          userId: userId,
+          patientName: 'Michael Johnson',
+          doctorName: currentUser?.name || 'Dr. Smith Williams',
+          doctorId: 'DOC001',
+          bloodType: 'B+',
+          wardNumber: 'W-301',
+          status: 'not_available',
+          confirmation: 'not_received'
+        }
+      ];
+      // Save sample requests to localStorage
+      const updatedAllRequests = [...allRequests, ...sampleRequests];
+      localStorage.setItem('bloodRequests', JSON.stringify(updatedAllRequests));
+      setRequests(sampleRequests);
+    } else {
+      setRequests(userRequests);
+    }
+    setLoading(false);
+  };
 
   const handleStatusChange = (requestId, newStatus) => {
     // Update the status of the request
@@ -167,8 +290,7 @@ const RequestReport = () => {
                   <th>Blood Type</th>
                   <th>Ward Number</th>
                   <th>Status</th>
-                  <th>Confirmation Status</th>
-                  <th>DT Form</th>
+                  <th>Confirmation</th>
                 </tr>
               </thead>
               <tbody>
@@ -217,32 +339,8 @@ const RequestReport = () => {
                         : getStatusBadge(request.status)
                       }
                     </td>
-                    <td data-label="Confirmation Status">
-                      {request.confirmationStatus || 'N/A'}
-                    </td>
-                    <td data-label="DT Form">
-                      {request.dtFormUpload ? (
-                        <a
-                          href={`http://localhost:5000/api/v1/blood-requests/download-dtform/${request.id}`}
-                          className="dtform-download-btn"
-                          style={{
-                            display: 'inline-block',
-                            padding: '6px 16px',
-                            backgroundColor: '#d32f2f',
-                            color: '#fff',
-                            borderRadius: '4px',
-                            textDecoration: 'none',
-                            fontWeight: 'bold',
-                            fontSize: '0.95rem',
-                            border: 'none',
-                            transition: 'background 0.2s',
-                          }}
-                        >
-                          Download
-                        </a>
-                      ) : (
-                        <span className="dtform-not-available">Not Available</span>
-                      )}
+                    <td data-label="Confirmation">
+                      {getConfirmationBadge(request.confirmation || 'not_received')}
                     </td>
                   </tr>
                 ))}

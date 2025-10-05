@@ -125,13 +125,6 @@ const StockResult = () => {
                 <span className="count-number">{stockInfo.units}</span>
                 <span className="count-label">Units Available</span>
               </div>
-              <div className="donor-details">
-                <div><strong>Donor Name:</strong> {stockInfo.donerName}</div>
-                <div><strong>Donor Phone:</strong> {stockInfo.donerphone}</div>
-                <div><strong>Donor Age:</strong> {stockInfo.donerAge}</div>
-                <div><strong>Donation Date:</strong> {stockInfo.donationDate}</div>
-                <div><strong>Notes:</strong> {stockInfo.Notes}</div>
-              </div>
             </div>
 
             <div className="compatibility-card">
