@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/DoctorRequests.css';
@@ -6,18 +7,18 @@ import '../styles/DoctorRequests.css';
 const DoctorRequests = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState([]); 
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
-    if (user && user.role === 'doctor') {
+    if (user && user.user.role === 'doctor') {
       setUserData(user);
-      loadDoctorRequests(user.id);
+      loadDoctorRequests(user.user.id);
     } else {
-      navigate('/login');
+      navigate('/');
     }
   }, [navigate]);
 
@@ -25,67 +26,25 @@ const DoctorRequests = () => {
     applyFilters();
   }, [requests, filterStatus, searchTerm]);
 
-  const loadDoctorRequests = (doctorId) => {
-    // Get requests from the bloodRequests (admin's table data) where the doctor made the request
-    const allRequests = JSON.parse(localStorage.getItem('bloodRequests')) || [];
-    const doctorRequests = allRequests.filter(req => req.userId === doctorId);
-
-    // If no requests exist, create sample data for the doctor
-    if (doctorRequests.length === 0) {
-      const currentUser = JSON.parse(localStorage.getItem('userData'));
-      const sampleRequests = [
-        {
-          id: 'REQ001',
-          userId: doctorId,
-          patientName: 'John Doe',
-          doctorName: currentUser?.name || 'Dr. Smith Williams',
-          doctorId: currentUser?.doctorId || 'DOC001',
-          bloodType: 'A+',
-          wardNumber: 'W-204',
-          requestDate: '2025-01-15',
-          status: 'approved'
-        },
-        {
-          id: 'REQ002',
-          userId: doctorId,
-          patientName: 'Jane Smith',
-          doctorName: currentUser?.name || 'Dr. Smith Williams',
-          doctorId: currentUser?.doctorId || 'DOC001',
-          bloodType: 'O-',
-          wardNumber: 'W-105',
-          requestDate: '2025-01-14',
-          status: 'pending'
-        },
-        {
-          id: 'REQ003',
-          userId: doctorId,
-          patientName: 'Michael Johnson',
-          doctorName: currentUser?.name || 'Dr. Smith Williams',
-          doctorId: currentUser?.doctorId || 'DOC001',
-          bloodType: 'B+',
-          wardNumber: 'W-301',
-          requestDate: '2025-01-13',
-          status: 'not_available'
-        },
-        {
-          id: 'REQ004',
-          userId: doctorId,
-          patientName: 'Sarah Wilson',
-          doctorName: currentUser?.name || 'Dr. Smith Williams',
-          doctorId: currentUser?.doctorId || 'DOC001',
-          bloodType: 'AB+',
-          wardNumber: 'W-108',
-          requestDate: '2025-01-12',
-          status: 'pending'
-        }
-      ];
-
-      // Save sample requests to localStorage
-      const updatedAllRequests = [...allRequests, ...sampleRequests];
-      localStorage.setItem('bloodRequests', JSON.stringify(updatedAllRequests));
-      setRequests(sampleRequests);
-    } else {
+  const loadDoctorRequests = async (doctorId) => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/v1/blood-requests/get-all');
+      const allRequests = response.data.bloodRequests || response.data || [];
+      console.log('Fetched blood requests from backend:', allRequests);
+      console.log('Current doctorId:', doctorId);
+      // If doctorId exists in response, filter by doctorId, else show all requests
+      let doctorRequests;
+      if (allRequests.length > 0 && 'doctorId' in allRequests[0]) {
+        doctorRequests = allRequests.filter(req => req.doctorId === doctorId);
+        console.log('Filtered doctor requests:', doctorRequests);
+      } else {
+        doctorRequests = allRequests; // fallback: show all requests
+        console.log('No doctorId in requests, showing all:', doctorRequests);
+      }
       setRequests(doctorRequests);
+    } catch (error) {
+      console.error('Error fetching blood requests:', error);
+      setRequests([]);
     }
   };
 
@@ -136,6 +95,7 @@ const DoctorRequests = () => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -232,22 +192,51 @@ const DoctorRequests = () => {
                   <th>Date</th>
                   <th>Blood Type</th>
                   <th>Status</th>
+                  <th>Confirmation Status</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRequests.map((request) => (
-                  <tr key={request.id}>
+                  <tr key={request._id || request.id}>
                     <td data-label="Patient Name" className="patient-name">
                       {request.patientName}
                     </td>
                     <td data-label="Date" className="request-date">
-                      {formatDate(request.requestDate)}
+                      {formatDate(request.createdAt || request.requestDate)}
                     </td>
                     <td data-label="Blood Type" className="blood-type">
                       <span className="blood-type-badge">{request.bloodType}</span>
                     </td>
                     <td data-label="Status" className="status">
-                      {getStatusBadge(request.status)}
+                      <select
+                        value={request.status}
+                        onChange={async (e) => {
+                          const newStatus = e.target.value;
+                          try {
+                            const res = await axios.patch(
+                              `http://localhost:5000/api/v1/blood-requests/update-status/${request._id || request.id}`,
+                              { status: newStatus }
+                            );
+                            alert(res.data.message || 'Status updated successfully');
+                            // Update local state
+                            setRequests(prev => prev.map(r =>
+                              (r._id || r.id) === (request._id || request.id)
+                                ? { ...r, status: newStatus }
+                                : r
+                            ));
+                          } catch (error) {
+                            alert(error.response?.data?.message || 'Failed to update status');
+                          }
+                        }}
+                        className="status-dropdown"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="approved">Available</option>
+                        <option value="not_available">Not Available</option>
+                      </select>
+                    </td>
+                    <td data-label="Confirmation Status" className="confirmation-status">
+                      {request.confirmationStatus || 'N/A'}
                     </td>
                   </tr>
                 ))}
