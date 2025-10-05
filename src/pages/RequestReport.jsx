@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import Navbar from '../components/Navbar';
 import '../styles/RequestReport.css';
 
@@ -14,12 +15,34 @@ const RequestReport = () => {
     setCurrentUser(userData);
     setUserRole(userData?.user?.role);
 
-    // Load requests based on user role
-    if (userData?.user.role === 'admin') {
-      loadAllRequests();
-    } else {
-      loadUserRequests(userData?.id || userData?.userId);
-    }
+    // Load requests from backend API
+    const fetchRequests = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:5000/api/v1/blood-requests/get-all');
+        console.log('Blood requests API response:', response);
+        const allRequests = response.data.bloodRequests || response.data || [];
+        if (userData?.user?.role === 'admin') {
+          setRequests(allRequests);
+        } else {
+          // Try to match doctorId or userId
+          const userId = userData?.id || userData?.userId;
+          let userRequests;
+          if (allRequests.length > 0 && 'doctorId' in allRequests[0]) {
+            userRequests = allRequests.filter(r => r.doctorId === userId);
+          } else if ('userId' in allRequests[0]) {
+            userRequests = allRequests.filter(r => r.userId === userId);
+          } else {
+            userRequests = allRequests;
+          }
+          setRequests(userRequests);
+        }
+      } catch (error) {
+        setRequests([]);
+      }
+      setLoading(false);
+    };
+    fetchRequests();
   }, []);
 
   const REQUIRED_FIELDS = ['patientName', 'doctorName', 'doctorId', 'bloodType', 'wardNumber', 'status'];
@@ -121,7 +144,7 @@ const RequestReport = () => {
       // Only show requests with all required fields
       setRequests(allRequests.filter(isValidRequest));
     }
-    setLoading(false);
+    return <span className="confirmation-badge confirmation-not-received">Not Received</span>;
   };
 
   const loadUserRequests = (userId) => {
@@ -262,8 +285,8 @@ const RequestReport = () => {
               <thead>
                 <tr>
                   <th>Patient Name</th>
-                  <th>Doctor Name</th>
-                  <th>Doctor ID</th>
+                  <th>User Name</th>
+                  <th>DOCTOR ID</th>
                   <th>Blood Type</th>
                   <th>Ward Number</th>
                   <th>Status</th>
@@ -274,13 +297,45 @@ const RequestReport = () => {
                 {requests.map((request) => (
                   <tr key={request.id}>
                     <td data-label="Patient Name">{request.patientName}</td>
-                    <td data-label="Doctor Name">{request.doctorName}</td>
-                    <td data-label="Doctor ID">{request.doctorId}</td>
+                    <td data-label="User Name">{request.user && request.user.fullName ? request.user.fullName : 'N/A'}</td>
+                    <td data-label="User ID">
+                      DOC-{request.user && request.user._id
+                        ? request.user._id.slice(0, 4)
+                        : 'N/A'}
+                    </td>
                     <td data-label="Blood Type">{request.bloodType}</td>
                     <td data-label="Ward Number">{request.wardNumber}</td>
                     <td data-label="Status">
                       {userRole === 'admin'
-                        ? getStatusDropdown(request)
+                        ? (
+                          <select
+                            value={request.status === 'approved' ? 'approved' : (request.status === 'not_available' ? 'not_available' : 'pending')}
+                            onChange={async (e) => {
+                              const newStatus = e.target.value;
+                              const confirmed = window.confirm('Are you sure you want to update the status?');
+                              if (!confirmed) return;
+                              try {
+                                await axios.patch(`http://localhost:5000/api/v1/blood-requests/update-status/${request.id}`, {
+                                  status: newStatus
+                                });
+                                setRequests(prev =>
+                                  prev.map(r =>
+                                    r.id === request.id
+                                      ? { ...r, status: newStatus }
+                                      : r
+                                  )
+                                );
+                              } catch (err) {
+                                // Optionally show error
+                              }
+                            }}
+                            className="status-dropdown"
+                          >
+                            <option value="pending">PENDING</option>
+                            <option value="approved">APPROVED</option>
+                            <option value="not_available">NOT APPROVED</option>
+                          </select>
+                        )
                         : getStatusBadge(request.status)
                       }
                     </td>

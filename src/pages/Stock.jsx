@@ -199,7 +199,7 @@ const Stock = () => {
                 <div className="card-actions">
                   <button 
                     className="view-details-btn"
-                    onClick={() => handleViewDetails(stock._id)}
+                    onClick={() => handleViewDetails(stock.id)}
                   >
                     View Details
                   </button>

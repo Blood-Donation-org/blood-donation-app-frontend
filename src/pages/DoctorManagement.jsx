@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/DoctorManagement.css';
@@ -22,7 +23,8 @@ const DoctorManagement = () => {
     experience: '',
     dateOfBirth: '',
     address: '',
-    password: ''
+    password: '',
+    bloodType: ''
   });
   const navigate = useNavigate();
 
@@ -30,7 +32,7 @@ const DoctorManagement = () => {
     const user = JSON.parse(localStorage.getItem('userData'));
     if (user && user.user.role === 'admin') {
       setUserData(user);
-      loadDoctors();
+      fetchDoctors();
     } else {
       navigate('/');
     }
@@ -40,11 +42,17 @@ const DoctorManagement = () => {
     applyFilters();
   }, [doctors, searchTerm, filterSpecialization]);
 
-  const loadDoctors = () => {
-    // Load doctors from localStorage (in a real app, this would be from backend)
-    const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-    const doctorUsers = allUsers.filter(user => user.role === 'doctor');
-    setDoctors(doctorUsers);
+  const fetchDoctors = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/v1/doctor-profiles/');
+      // Adjust according to backend response structure
+      const doctorProfiles = response.data.doctorProfiles || response.data || [];
+  // ...existing code...
+      setDoctors(doctorProfiles);
+    } catch (error) {
+      console.error('Error fetching doctors:', error);
+      setDoctors([]);
+    }
   };
 
   const applyFilters = () => {
@@ -70,68 +78,90 @@ const DoctorManagement = () => {
     setFilteredDoctors(filtered);
   };
 
-  const handleAddDoctor = (e) => {
+  const handleAddDoctor = async (e) => {
     e.preventDefault();
 
     // Validation
     if (!newDoctor.name || !newDoctor.email || !newDoctor.phone || 
         !newDoctor.hospitalAffiliation || !newDoctor.specialization || 
-        !newDoctor.licenseNumber || !newDoctor.password) {
+        !newDoctor.licenseNumber || !newDoctor.password || !newDoctor.bloodType) {
       alert('Please fill in all required fields');
       return;
     }
 
-    // Check if email already exists
-    const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-    if (allUsers.some(user => user.email === newDoctor.email)) {
-      alert('A user with this email already exists');
-      return;
+    try {
+      const response = await axios.post('http://localhost:5000/api/v1/doctor-profiles/create', {
+        // User fields
+        accountType: '',
+        email: newDoctor.email,
+        password: newDoctor.password,
+        fullName: newDoctor.name,
+        phoneNumber: newDoctor.phone,
+        dob: newDoctor.dateOfBirth,
+        bloodType: newDoctor.bloodType,
+        address: newDoctor.address,
+        medicalHistory: '',
+        isDoner: false,
+        isPatient: false,
+        // Doctor profile fields
+        hospitalAffiliation: newDoctor.hospitalAffiliation,
+        specialization: newDoctor.specialization,
+        medicalLicenseNumber: newDoctor.licenseNumber,
+        yearsOfExperience: newDoctor.experience
+      });
+
+      if (response.status === 201) {
+        alert('Doctor added successfully!');
+        setShowAddModal(false);
+        setNewDoctor({
+          name: '',
+          email: '',
+          phone: '',
+          hospitalAffiliation: '',
+          specialization: '',
+          licenseNumber: '',
+          experience: '',
+          dateOfBirth: '',
+          address: '',
+          password: '',
+          bloodType: ''
+        });
+        // Reload doctors from backend
+        fetchDoctors();
+      } else {
+        alert(response.data.message || 'Failed to add doctor');
+      }
+    } catch (error) {
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Server error. Please try again later.');
+      }
     }
-
-    // Create doctor object
-    const doctorToAdd = {
-      ...newDoctor,
-      id: Date.now(),
-      role: 'doctor',
-      createdAt: new Date().toISOString(),
-      createdBy: userData.id,
-      status: 'active'
-    };
-
-    // Add to all users
-    allUsers.push(doctorToAdd);
-    localStorage.setItem('allUsers', JSON.stringify(allUsers));
-
-    // Update local state
-    setDoctors([...doctors, doctorToAdd]);
-
-    // Reset form and close modal
-    setNewDoctor({
-      name: '',
-      email: '',
-      phone: '',
-      hospitalAffiliation: '',
-      specialization: '',
-      licenseNumber: '',
-      experience: '',
-      dateOfBirth: '',
-      address: '',
-      password: ''
-    });
-    setShowAddModal(false);
-    alert('Doctor added successfully!');
   };
 
+  // Optionally update to use backend for delete in future
   const handleDeleteDoctor = (doctorId) => {
+    // Find the doctor object from doctors array
+    const doctorObj = doctors.find(doc => (doc.id || doc._id) === doctorId);
+    console.log('Deleting doctor object:', doctorObj);
     if (window.confirm('Are you sure you want to remove this doctor?')) {
-      // Remove from allUsers
-      const allUsers = JSON.parse(localStorage.getItem('allUsers')) || [];
-      const updatedUsers = allUsers.filter(user => user.id !== doctorId);
-      localStorage.setItem('allUsers', JSON.stringify(updatedUsers));
-
-      // Update local state
-      setDoctors(doctors.filter(doctor => doctor.id !== doctorId));
-      alert('Doctor removed successfully!');
+      try {
+        // Call backend API to delete doctor
+        axios.delete(`http://localhost:5000/api/v1/doctor-profiles/delete/${doctorId}`)
+          .then((response) => {
+            alert(response.data.message || 'Doctor removed successfully!');
+            fetchDoctors();
+          })
+          .catch((error) => {
+            alert(
+              error.response?.data?.message ||
+              'Failed to remove doctor. Please try again.'
+            );
+          });
+      } catch (error) {
+        alert('Server error. Please try again later.');
+      }
     }
   };
 
@@ -242,49 +272,71 @@ const DoctorManagement = () => {
             </div>
           ) : (
             <div className="doctors-grid">
-              {filteredDoctors.map((doctor) => (
-                <div key={doctor.id} className="doctor-card">
-                  <div className="doctor-avatar">
-                    {doctor.name.charAt(0).toUpperCase()}
-                  </div>
-                  
-                  <div className="doctor-info">
-                    <h3>{doctor.name}</h3>
-                    <p className="specialization">{doctor.specialization}</p>
-                    <p className="hospital">{doctor.hospitalAffiliation}</p>
-                    
-                    <div className="doctor-details">
-                      <div className="detail-item">
-                        <span className="label">License:</span>
-                        <span className="value">{doctor.licenseNumber}</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Experience:</span>
-                        <span className="value">{doctor.experience || 'N/A'} years</span>
-                      </div>
-                      <div className="detail-item">
-                        <span className="label">Email:</span>
-                        <span className="value">{doctor.email}</span>
+              {filteredDoctors.map((doctor) => {
+                // ...existing code...
+                const user = doctor.userId || {};
+                const docName = user.name || user.fullName || '';
+                return (
+                  <div key={doctor.id || doctor._id} className="doctor-card">
+                    <div className="doctor-avatar">
+                      {docName.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="doctor-info">
+                      <h3>{docName}</h3>
+                      <p className="specialization">{doctor.specialization}</p>
+                      <p className="hospital">{doctor.hospitalAffiliation}</p>
+                      <div className="doctor-details">
+                        <div className="detail-item">
+                          <span className="label">License:</span>
+                          <span className="value">{doctor.licenseNumber || doctor.medicalLicenseNumber}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Experience:</span>
+                          <span className="value">{doctor.experience || doctor.yearsOfExperience || 'N/A'} years</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Email:</span>
+                          <span className="value">{user.email}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Phone:</span>
+                          <span className="value">{user.phone || user.phoneNumber}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Blood Type:</span>
+                          <span className="value">{user.bloodType}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Date of Birth:</span>
+                          <span className="value">{user.dateOfBirth || user.dob}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Address:</span>
+                          <span className="value">{user.address}</span>
+                        </div>
+                        <div className="detail-item">
+                          <span className="label">Medical History:</span>
+                          <span className="value">{user.medicalHistory}</span>
+                        </div>
                       </div>
                     </div>
+                    <div className="doctor-actions">
+                      <button 
+                        onClick={() => handleViewDetails(doctor)}
+                        className="view-btn"
+                      >
+                        View Details
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteDoctor(doctor.userId._id)}
+                        className="delete-btn"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-
-                  <div className="doctor-actions">
-                    <button 
-                      onClick={() => handleViewDetails(doctor)}
-                      className="view-btn"
-                    >
-                      View Details
-                    </button>
-                    <button 
-                      onClick={() => handleDeleteDoctor(doctor.id)}
-                      className="delete-btn"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -336,6 +388,24 @@ const DoctorManagement = () => {
                         value={newDoctor.dateOfBirth}
                         onChange={(e) => setNewDoctor({...newDoctor, dateOfBirth: e.target.value})}
                       />
+                    </div>
+                    <div className="form-group">
+                      <label>Blood Type *</label>
+                      <select
+                        value={newDoctor.bloodType}
+                        onChange={(e) => setNewDoctor({...newDoctor, bloodType: e.target.value})}
+                        required
+                      >
+                        <option value="">Select blood type</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                      </select>
                     </div>
                   </div>
                   <div className="form-group">
@@ -436,17 +506,17 @@ const DoctorManagement = () => {
           <div className="modal-overlay" onClick={() => setShowDetailsModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h2>Doctor Details - {selectedDoctor.name}</h2>
+                <h2>Doctor Details - {((selectedDoctor.userId && (selectedDoctor.userId.name || selectedDoctor.userId.fullName)) || '')}</h2>
                 <button onClick={() => setShowDetailsModal(false)} className="close-btn">×</button>
               </div>
 
               <div className="modal-body">
                 <div className="doctor-profile">
                   <div className="profile-avatar">
-                    {selectedDoctor.name.charAt(0).toUpperCase()}
+                    {((selectedDoctor.userId && (selectedDoctor.userId.name || selectedDoctor.userId.fullName)) || '').charAt(0).toUpperCase()}
                   </div>
                   <div className="profile-info">
-                    <h3>{selectedDoctor.name}</h3>
+                    <h3>{(selectedDoctor.userId && (selectedDoctor.userId.name || selectedDoctor.userId.fullName)) || ''}</h3>
                     <p>{selectedDoctor.specialization}</p>
                     <p>{selectedDoctor.hospitalAffiliation}</p>
                   </div>
@@ -457,19 +527,27 @@ const DoctorManagement = () => {
                   <div className="details-grid">
                     <div className="detail-item">
                       <label>Email:</label>
-                      <span>{selectedDoctor.email}</span>
+                      <span>{selectedDoctor.userId?.email}</span>
                     </div>
                     <div className="detail-item">
                       <label>Phone:</label>
-                      <span>{selectedDoctor.phone}</span>
+                      <span>{selectedDoctor.userId?.phone || selectedDoctor.userId?.phoneNumber}</span>
+                    </div>
+                    <div className="detail-item">
+                      <label>Blood Type:</label>
+                      <span>{selectedDoctor.userId?.bloodType}</span>
                     </div>
                     <div className="detail-item">
                       <label>Date of Birth:</label>
-                      <span>{formatDate(selectedDoctor.dateOfBirth)}</span>
+                      <span>{formatDate(selectedDoctor.userId?.dateOfBirth || selectedDoctor.userId?.dob)}</span>
                     </div>
                     <div className="detail-item">
                       <label>Address:</label>
-                      <span>{selectedDoctor.address || 'Not provided'}</span>
+                      <span>{selectedDoctor.userId?.address || 'Not provided'}</span>
+                    </div>
+                    <div className="detail-item">
+                      <label>Medical History:</label>
+                      <span>{selectedDoctor.userId?.medicalHistory}</span>
                     </div>
                   </div>
                 </div>
@@ -487,11 +565,11 @@ const DoctorManagement = () => {
                     </div>
                     <div className="detail-item">
                       <label>License Number:</label>
-                      <span>{selectedDoctor.licenseNumber}</span>
+                      <span>{selectedDoctor.licenseNumber || selectedDoctor.medicalLicenseNumber}</span>
                     </div>
                     <div className="detail-item">
                       <label>Experience:</label>
-                      <span>{selectedDoctor.experience || 'N/A'} years</span>
+                      <span>{selectedDoctor.experience || selectedDoctor.yearsOfExperience || 'N/A'} years</span>
                     </div>
                   </div>
                 </div>

@@ -1,0 +1,183 @@
+
+/* Modern Notification Dropdown Styles */
+.notification-dropdown {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+  width: 340px;
+  max-width: 95vw;
+  padding: 0.5rem 0 0.5rem 0;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  z-index: 100;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 1.1rem 0.5rem 1.1rem;
+  border-bottom: 1px solid #f3f3f3;
+}
+.notification-header h3 {
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #c62828;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+.clear-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.clear-btn:hover {
+  color: #c62828;
+  background: #fbe9e7;
+}
+
+.notification-list {
+  max-height: 340px;
+  overflow-y: auto;
+  padding: 0.5rem 0.7rem 0.5rem 0.7rem;
+}
+.notification-item {
+  margin-bottom: 0.6rem;
+}
+.notification-card {
+  background: linear-gradient(90deg, #f9f9fc 80%, #fbe9e7 100%);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(220, 0, 78, 0.07);
+  padding: 0.7rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  transition: box-shadow 0.2s, background 0.2s;
+  border: 1px solid #f3f3f3;
+}
+.notification-card:hover {
+  box-shadow: 0 6px 18px rgba(220, 0, 78, 0.13);
+  background: linear-gradient(90deg, #fbe9e7 60%, #f9f9fc 100%);
+}
+.notification-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.notification-card-icon {
+  font-size: 1.25rem;
+  margin-right: 0.18rem;
+  color: #d32f2f;
+  background: #fff;
+  border-radius: 50%;
+  padding: 2px 6px;
+  box-shadow: 0 1px 4px rgba(220,0,78,0.08);
+}
+.notification-card-title {
+  font-weight: 600;
+  color: #222;
+  font-size: 1rem;
+  margin-right: 0.2rem;
+}
+.notification-card-bloodtype {
+  background: #d32f2f;
+  color: #fff;
+  border-radius: 4px;
+  padding: 0 7px;
+  font-size: 0.93rem;
+  margin-left: 0.18rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.notification-card-time {
+  margin-left: auto;
+  font-size: 0.82rem;
+  color: #888;
+  font-weight: 500;
+}
+.notification-card-body {
+  font-size: 0.97rem;
+  color: #444;
+  margin-left: 1.6rem;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+.notification-card-details {
+  display: flex;
+  gap: 1.1rem;
+  font-size: 0.91rem;
+  margin-left: 1.6rem;
+  margin-top: 0.1rem;
+  flex-wrap: wrap;
+}
+.notification-card-detail {
+  color: #555;
+  background: #f3f3f3;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-weight: 500;
+}
+.status-pending {
+  color: #fbc02d;
+  background: #fffde7;
+  font-weight: 600;
+}
+.status-approved {
+  color: #388e3c;
+  background: #e8f5e9;
+  font-weight: 600;
+}
+.status-not_available {
+  color: #d32f2f;
+  background: #ffebee;
+  font-weight: 600;
+}
+.confirm-unconfirmed {
+  color: #fbc02d;
+  background: #fffde7;
+  font-weight: 600;
+}
+.confirm-confirmed {
+  color: #388e3c;
+  background: #e8f5e9;
+  font-weight: 600;
+}
+.confirm-rejected {
+  color: #d32f2f;
+  background: #ffebee;
+  font-weight: 600;
+}
+.no-notifications {
+  text-align: center;
+  color: #888;
+  padding: 1.2rem 0;
+  font-size: 1rem;
+}
+.notification-footer {
+  padding: 0.5rem 1.1rem 0.5rem 1.1rem;
+  border-top: 1px solid #f3f3f3;
+  text-align: right;
+}
+.view-all-btn {
+  background: #d32f2f;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.32rem 1.05rem;
+  font-size: 0.97rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px rgba(220,0,78,0.08);
+}
+.view-all-btn:hover {
+  background: #b71c1c;
+}
