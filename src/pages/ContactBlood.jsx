@@ -9,8 +9,9 @@ const DoctorBloodRequest = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [dtFormImage, setDtFormImage] = useState(null);
+  const [dtFormImage, setDtFormImage] = useState(null); // DataURL for preview
   const [dtFormPreview, setDtFormPreview] = useState(null);
+  const [dtFormFile, setDtFormFile] = useState(null); // Actual file object
   const [formData, setFormData] = useState({
     // Patient Details
     patientName: '',
@@ -60,6 +61,8 @@ const DoctorBloodRequest = () => {
         return;
       }
 
+      setDtFormFile(file); // Track file object for upload
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const imageDataUrl = e.target.result;
@@ -73,6 +76,7 @@ const DoctorBloodRequest = () => {
   const removeImage = () => {
     setDtFormImage(null);
     setDtFormPreview(null);
+    setDtFormFile(null);
     // Reset file input
     const fileInput = document.getElementById('dtFormUpload');
     if (fileInput) {
@@ -115,8 +119,8 @@ const DoctorBloodRequest = () => {
       return false;
     }
 
-    // Check if DT form is uploaded
-    if (!dtFormImage) {
+    // Check if DT form file is uploaded
+    if (!dtFormFile) {
       alert('Please upload the DT form image');
       return false;
     }
@@ -148,10 +152,9 @@ const DoctorBloodRequest = () => {
       if (userData && userData.user && userData.user.id) {
         form.append('user', userData.user.id);
       }
-      // dtFormImage is a dataURL, get the original file from input
-      const fileInput = document.getElementById('dtFormUpload');
-      if (fileInput && fileInput.files[0]) {
-        form.append('dtFormUpload', fileInput.files[0]);
+      // Use the actual file object from state
+      if (dtFormFile) {
+        form.append('dtFormUpload', dtFormFile);
       }
 
       // Send to backend
@@ -176,8 +179,9 @@ const DoctorBloodRequest = () => {
         surgeryDate: '',
         additionalNotes: ''
       });
-      setDtFormImage(null);
-      setDtFormPreview(null);
+  setDtFormImage(null);
+  setDtFormPreview(null);
+  setDtFormFile(null);
       navigate('/doctor-requests');
     } catch (error) {
       console.error('Error submitting request:', error);

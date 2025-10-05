@@ -163,11 +163,12 @@ const RequestReport = () => {
                 <tr>
                   <th>Patient Name</th>
                   <th>User Name</th>
-                  <th>User ID</th>
+                  <th>DOCTOR ID</th>
                   <th>Blood Type</th>
                   <th>Ward Number</th>
                   <th>Status</th>
                   <th>Confirmation Status</th>
+                  <th>DT Form</th>
                 </tr>
               </thead>
               <tbody>
@@ -175,17 +176,73 @@ const RequestReport = () => {
                   <tr key={request.id}>
                     <td data-label="Patient Name">{request.patientName}</td>
                     <td data-label="User Name">{request.user && request.user.fullName ? request.user.fullName : 'N/A'}</td>
-                    <td data-label="User ID">{request.user && request.user._id ? request.user._id : 'N/A'}</td>
+                    <td data-label="User ID">
+                      DOC-{request.user && request.user._id
+                        ? request.user._id.slice(0, 4)
+                        : 'N/A'}
+                    </td>
                     <td data-label="Blood Type">{request.bloodType}</td>
                     <td data-label="Ward Number">{request.wardNumber}</td>
                     <td data-label="Status">
                       {userRole === 'admin'
-                        ? getStatusDropdown(request)
+                        ? (
+                          <select
+                            value={request.status === 'approved' ? 'approved' : (request.status === 'not_available' ? 'not_available' : 'pending')}
+                            onChange={async (e) => {
+                              const newStatus = e.target.value;
+                              const confirmed = window.confirm('Are you sure you want to update the status?');
+                              if (!confirmed) return;
+                              try {
+                                await axios.patch(`http://localhost:5000/api/v1/blood-requests/update-status/${request.id}`, {
+                                  status: newStatus
+                                });
+                                setRequests(prev =>
+                                  prev.map(r =>
+                                    r.id === request.id
+                                      ? { ...r, status: newStatus }
+                                      : r
+                                  )
+                                );
+                              } catch (err) {
+                                // Optionally show error
+                              }
+                            }}
+                            className="status-dropdown"
+                          >
+                            <option value="pending">PENDING</option>
+                            <option value="approved">APPROVED</option>
+                            <option value="not_available">NOT APPROVED</option>
+                          </select>
+                        )
                         : getStatusBadge(request.status)
                       }
                     </td>
                     <td data-label="Confirmation Status">
                       {request.confirmationStatus || 'N/A'}
+                    </td>
+                    <td data-label="DT Form">
+                      {request.dtFormUpload ? (
+                        <a
+                          href={`http://localhost:5000/api/v1/blood-requests/download-dtform/${request.id}`}
+                          className="dtform-download-btn"
+                          style={{
+                            display: 'inline-block',
+                            padding: '6px 16px',
+                            backgroundColor: '#d32f2f',
+                            color: '#fff',
+                            borderRadius: '4px',
+                            textDecoration: 'none',
+                            fontWeight: 'bold',
+                            fontSize: '0.95rem',
+                            border: 'none',
+                            transition: 'background 0.2s',
+                          }}
+                        >
+                          Download
+                        </a>
+                      ) : (
+                        <span className="dtform-not-available">Not Available</span>
+                      )}
                     </td>
                   </tr>
                 ))}
