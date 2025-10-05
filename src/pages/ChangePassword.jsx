@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import axios from 'axios';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/ChangePassword.css';
 import Navbar from '../components/Navbar';
+import '../styles/ChangePassword.css';
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -35,67 +36,32 @@ const ChangePassword = () => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Validation
-    if (!formData.currentPassword || !formData.newPassword || !formData.confirmPassword) {
-      alert('Please fill in all fields!');
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.user.id) {
+      alert('User session expired. Please login again.');
       setIsLoading(false);
-      return;
-    }
-
-    if (formData.newPassword.length < 6) {
-      alert('New password must be at least 6 characters long!');
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.newPassword !== formData.confirmPassword) {
-      alert('New passwords do not match!');
-      setIsLoading(false);
-      return;
-    }
-
-    if (formData.currentPassword === formData.newPassword) {
-      alert('New password must be different from current password!');
-      setIsLoading(false);
+      navigate('/');
       return;
     }
 
     try {
-      // Get current user data
-      const userData = JSON.parse(localStorage.getItem('userData'));
-      
-      if (!userData) {
-        alert('User session expired. Please login again.');
-        navigate('/signin');
-        return;
-      }
-
-      // Verify current password (in real app, this would be done on server)
-      if (userData.password !== formData.currentPassword) {
-        alert('Current password is incorrect!');
-        setIsLoading(false);
-        return;
-      }
-
-      // Update password
-      const updatedUserData = {
-        ...userData,
-        password: formData.newPassword
-      };
-
-      localStorage.setItem('userData', JSON.stringify(updatedUserData));
-
-      // Simulate API call delay
-      setTimeout(() => {
-        setIsLoading(false);
-        alert('Password changed successfully!');
-        navigate('/profile');
-      }, 1000);
-
+      const response = await axios.put(`http://localhost:5000/api/v1/users/change-password/${userData.user.id}`,
+        {
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+          confirmPassword: formData.confirmPassword
+        }
+      );
+      setIsLoading(false);
+      alert(response.data.message || 'Password changed successfully!');
+      navigate('/profile');
     } catch (error) {
       setIsLoading(false);
-      console.error('Password change error:', error);
-      alert('An error occurred. Please try again.');
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('An error occurred. Please try again.');
+      }
     }
   };
 
