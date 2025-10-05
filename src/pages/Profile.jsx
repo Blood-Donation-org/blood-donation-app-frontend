@@ -73,8 +73,8 @@ const Profile = () => {
             </div>
             <div className="profile-info">
               <h1 className="profile-name">{userData.fullName}</h1>
-              <p className="profile-role">{userData.role === 'admin' ? 'System Administrator' : 'Blood Donor'}</p>
-              <span className={`role-badge ${userData.role ? userData.role.toLowerCase() : 'unknown'}`}>{userData.role || 'Unknown'}</span>
+              <p className="profile-role">{userData.role === 'admin' ? 'System Administrator' : 'Doctor'}</p>
+              {/* <span className={`role-badge ${userData.role ? userData.role.toLowerCase() : 'unknown'}`}>{userData.role || 'Unknown'}</span> */}
             </div>
             <div className="profile-actions">
               {!isEditing ? (
@@ -176,7 +176,7 @@ const Profile = () => {
             </div>
 
             {/* Medical Information Section - Only for regular users */}
-            {userData.role !== 'admin' && (
+            {/* {userData.role !== 'admin' && (
               <div className="profile-section">
                 <h2 className="section-title">Medical Information</h2>
                 <div className="info-grid">
@@ -231,10 +231,10 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Admin Dashboard Section - Only for admins */}
-            {userData.role === 'admin' && (
+            {/* {userData.role === 'admin' && (
               <div className="profile-section">
                 <h2 className="section-title">Admin Dashboard</h2>
                 <div className="admin-stats">
@@ -256,7 +256,7 @@ const Profile = () => {
                   </div>
                 </div>
               </div>
-            )}
+            )} */}
 
             {/* Account Settings Section */}
             {/* <div className="profile-section">
