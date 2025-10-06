@@ -71,7 +71,6 @@ const RequestReport = () => {
     );
   };
 
-
   const handleStatusChange = (requestId, newStatus) => {
     // Update the status of the request
     const updatedRequests = requests.map((request) =>
@@ -179,10 +178,8 @@ const RequestReport = () => {
                         : "N/A"}
                     </td>
                     <td data-label="User ID">
-                      DOC-
-                      {request.medicalLicenseNumber &&
-                      request.medicalLicenseNumber
-                        ? request.medicalLicenseNumber
+                      {request.doctorProfile && request.doctorProfile.medicalLicenseNumber
+                        ? request.doctorProfile.medicalLicenseNumber
                         : "N/A"}
                     </td>
                     <td data-label="Blood Type">{request.bloodType}</td>
