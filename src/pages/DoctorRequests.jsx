@@ -222,9 +222,9 @@ const DoctorRequests = () => {
                         }}
                         className="confirmation-dropdown"
                       >
-                        <option value="unconfirmed">Unconfirmed</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="unconfirmed">PENDING</option>
+                        <option value="confirmed">RECEIVED</option>
+                        <option value="rejected">NOT RECEIVED</option>
                       </select>
                     </td>
                   </tr>
