@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/AddCampPage.css';
 
@@ -14,6 +15,7 @@ const AddCampPage = () => {
     organizer: '',
     message: ''
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,6 +57,7 @@ const AddCampPage = () => {
           organizer: '',
           message: ''
         });
+        navigate('/camps');
       } else {
         alert(response.data.message || 'Failed to add camp');
       }

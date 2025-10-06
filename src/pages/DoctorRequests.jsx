@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/DoctorRequests.css';
 
 const DoctorRequests = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [requests, setRequests] = useState([]); 
   const [filteredRequests, setFilteredRequests] = useState([]);
@@ -20,11 +21,7 @@ const DoctorRequests = () => {
     } else {
       navigate('/');
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [requests, filterStatus, searchTerm]);
+  }, [navigate, location.search]); // Add location.search to dependencies
 
   const loadDoctorRequests = async (doctorId) => {
     try {
@@ -37,51 +34,32 @@ const DoctorRequests = () => {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = [...requests];
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = [...requests];
 
-    // Filter by status
-    if (filterStatus !== 'all') {
-      filtered = filtered.filter(req => req.status === filterStatus);
-    }
-
-    // Filter by search term
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(req =>
-        req.patientName.toLowerCase().includes(term) ||
-        req.bloodType.toLowerCase().includes(term) ||
-        req.id.toLowerCase().includes(term)
-      );
-    }
-
-    setFilteredRequests(filtered);
-  };
-
-  const getStatusBadge = (status) => {
-    const statusConfig = {
-      approved: {
-        className: 'status-available',
-        text: 'Available'
-      },
-      not_available: {
-        className: 'status-not-available',
-        text: 'Not Available'
-      },
-      pending: {
-        className: 'status-pending',
-        text: 'Pending'
+      // Filter by status
+      if (filterStatus !== 'all') {
+        filtered = filtered.filter(req => req.status === filterStatus);
       }
-    };
 
-    const config = statusConfig[status] || statusConfig.pending;
+      // Filter by search term
+      if (searchTerm.trim()) {
+        const term = searchTerm.toLowerCase();
+        filtered = filtered.filter(req =>
+          req.patientName.toLowerCase().includes(term) ||
+          req.bloodType.toLowerCase().includes(term) ||
+          req.id.toLowerCase().includes(term)
+        );
+      }
+
+      setFilteredRequests(filtered);
+    };
     
-    return (
-      <span className={`status-badge ${config.className}`}>
-        {config.text}
-      </span>
-    );
-  };
+    applyFilters();
+  }, [requests, filterStatus, searchTerm]);
+
+
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -222,9 +200,9 @@ const DoctorRequests = () => {
                         }}
                         className="confirmation-dropdown"
                       >
-                        <option value="unconfirmed">Unconfirmed</option>
-                        <option value="confirmed">Confirmed</option>
-                        <option value="rejected">Rejected</option>
+                        <option value="unconfirmed">PENDING</option>
+                        <option value="confirmed">RECEIVED</option>
+                        <option value="rejected">NOT RECEIVED</option>
                       </select>
                     </td>
                   </tr>

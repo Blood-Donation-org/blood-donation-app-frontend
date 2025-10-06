@@ -179,10 +179,11 @@ const DoctorBloodRequest = () => {
         surgeryDate: '',
         additionalNotes: ''
       });
-  setDtFormImage(null);
-  setDtFormPreview(null);
-  setDtFormFile(null);
-      navigate('/doctor-requests');
+      setDtFormImage(null);
+      setDtFormPreview(null);
+      setDtFormFile(null);
+      // Navigate with timestamp to force refresh
+      navigate('/doctor-requests?refresh=' + Date.now());
     } catch (error) {
       console.error('Error submitting request:', error);
       alert(error.response?.data?.message || 'An error occurred while submitting the request. Please try again.');

@@ -31,86 +31,6 @@ const NotificationDropdown = ({ userRole }) => {
 
   // Remove loadNotifications and sample notification logic
 
-  const getAdminSampleNotifications = () => [
-    {
-      id: 1,
-      type: 'blood_request',
-      bloodType: 'O-',
-      location: 'City Hospital, Colombo',
-      urgency: 'urgent',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      isRead: false,
-      requesterName: 'Dr. Silva',
-      unitsNeeded: 2,
-      reason: 'Emergency surgery'
-    },
-    {
-      id: 2,
-      type: 'doctor_blood_request',
-      doctorName: 'Dr. Perera',
-      hospitalName: 'National Hospital, Kandy',
-      patientName: 'John Doe',
-      bloodType: 'A+',
-      unitsRequired: 1,
-      urgency: 'normal',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      isRead: false,
-      requestId: 'DR-123456'
-    }
-  ];
-
-  const getUserSampleNotifications = () => [
-    {
-      id: 1,
-      type: 'donation_reminder',
-      timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000),
-      isRead: false,
-      nextDonationDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      message: 'You are eligible to donate blood again!'
-    }
-  ];
-
-  const getDoctorSampleNotifications = () => [
-    {
-      id: 1,
-      type: 'request_approved',
-      requestId: 'DR-123456',
-      patientName: 'John Doe',
-      bloodType: 'B+',
-      unitsApproved: 2,
-      timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
-      isRead: false,
-      message: 'Your blood request has been approved'
-    },
-    {
-      id: 2,
-      type: 'request_partial',
-      requestId: 'DR-789012',
-      patientName: 'Jane Smith',
-      bloodType: 'O-',
-      unitsRequested: 3,
-      unitsAvailable: 1,
-      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000),
-      isRead: true,
-      message: 'Your blood request is partially available'
-    }
-  ];
-
-  // Remove addNewBloodRequest, addUserNotification, addDoctorNotification
-
-  const getDoctorStatusMessage = (status) => {
-    switch (status) {
-      case 'approved':
-        return 'Your blood request has been approved';
-      case 'partial':
-        return 'Your blood request is partially available';
-      case 'rejected':
-        return 'Your blood request could not be fulfilled';
-      default:
-        return 'Blood request status updated';
-    }
-  };
-
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
     const time = new Date(timestamp);
@@ -121,13 +41,6 @@ const NotificationDropdown = ({ userRole }) => {
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
   };
 
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
 
   const getUrgencyClass = (urgency) => {
     switch (urgency) {
@@ -232,12 +145,13 @@ const NotificationDropdown = ({ userRole }) => {
     }
   };
 
-  // Filter notifications for user role 'user' to only show donation_reminder type
+  // Show donation_reminder only for user role 'user', exclude for admin and doctor
   const getFilteredNotifications = () => {
     if (userRole === 'user') {
       return notifications.filter(n => n.type === 'donation_reminder');
     }
-    return notifications;
+    // For admin and doctor, exclude donation_reminder notifications
+    return notifications.filter(n => n.type !== 'donation_reminder');
   };
 
   return (
