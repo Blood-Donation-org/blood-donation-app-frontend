@@ -118,6 +118,7 @@ const DoctorBloodRequest = () => {
       alert('Please enter a valid contact number');
       return false;
     }
+    
 
     // Check if DT form file is uploaded
     if (!dtFormFile) {

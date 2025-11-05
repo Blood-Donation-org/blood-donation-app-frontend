@@ -1,35 +1,3 @@
-// import React, { useState } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
-// import '../styles/RegisterPage.css';
-// import logo from '../assets/logo.png'; 
-
-// const RegisterPage = () => {
-//   const [currentStep, setCurrentStep] = useState(1);
-//   const [formData, setFormData] = useState({
-//     name: '',
-//     email: '',
-//     phone: '',
-//     dateOfBirth: '',
-//     address: '',
-//     bloodType: '',
-//     medicalHistory: '',
-//     password: '',
-//     confirmPassword: '',
-//     role: 'user' // Default role
-//   });
-  
-//   const navigate = useNavigate();
-
-//   const handleChange = (e) => {
-//     setFormData({
-//       ...formData,
-//       [e.target.name]: e.target.value
-//     });
-//   };
-
-//   const handleNextStep = (e) => {
-// export default RegisterPage;
-
 import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -87,6 +55,13 @@ const RegisterPage = () => {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(formData.email)) {
       alert('Please enter a valid email address!');
+      return false;
+    }
+
+    // Phone validation for Sri Lanka: 10 digits, typically starting with 0 (e.g., 07XXXXXXXX)
+    const phonePattern = /^0\d{9}$/;
+    if (!phonePattern.test(formData.phone)) {
+      alert('Please enter a valid Sri Lankan phone number (10 digits, starting with 0).');
       return false;
     }
 
@@ -233,7 +208,7 @@ const RegisterPage = () => {
                     >
                       <option value="user">Donor</option>
                       {/* <option value="doctor">Doctor</option> */}
-                      <option value="admin">Administrator</option>
+                      {/* <option value="admin">Administrator</option> */}
                     </select>
                   </div>
 

@@ -598,42 +598,14 @@
   
   .doctor-requests-table th {
     background: #f0f0f0 !important;
-    -webkit-print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
   }
 }
 
-/* Dark Mode Support (Optional) */
-@media (prefers-color-scheme: dark) {
-  .doctor-my-requests-page {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: #f0f0f0;
-  }
-  
-  .requests-header,
-  .stat-card,
-  .table-container {
-    background: #333;
-    border: 1px solid #555;
-  }
-  
-  .doctor-requests-table th {
-    background: #CD2F2F;
-    color: #f0f0f0;
-  }
-  
-  .doctor-requests-table td {
-    color: #f0f0f0;
-    border-bottom-color: #555;
-  }
-  
-  .doctor-requests-table tbody tr:hover {
-    background: #444;
-  }
-  
   .filter-select,
   .search-input {
     background: #444;
     border-color: #666;
     color: #f0f0f0;
   }
-}

@@ -106,6 +106,47 @@
   background: #fff;
 }
 
+/* Password toggle positioning */
+.password-input-wrapper {
+  position: relative;
+}
+
+.password-with-toggle {
+  /* leave left padding unchanged, make room on the right for the toggle */
+  padding-right: 44px;
+}
+
+.password-toggle-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+}
+
+.password-toggle-button svg {
+  display: block;
+}
+
+/* Hide native browser password-reveal controls on supported engines (Edge/IE/Blink/WebKit variants) */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* Attempt to hide any WebKit decoration buttons (best-effort) */
+input::-webkit-contacts-auto-fill-button,
+input::-webkit-textfield-decoration-container {
+  display: none !important;
+}
+
 .form-input:focus {
   outline: none;
   border-color: #CD2F2F;

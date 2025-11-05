@@ -26,6 +26,7 @@ const DoctorManagement = () => {
     password: '',
     bloodType: ''
   });
+  const [phoneError, setPhoneError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,7 +48,6 @@ const DoctorManagement = () => {
       const response = await axios.get('http://localhost:5000/api/v1/doctor-profiles/');
       // Adjust according to backend response structure
       const doctorProfiles = response.data.doctorProfiles || response.data || [];
-  // ...existing code...
       setDoctors(doctorProfiles);
     } catch (error) {
       console.error('Error fetching doctors:', error);
@@ -87,6 +87,15 @@ const DoctorManagement = () => {
         !newDoctor.licenseNumber || !newDoctor.password || !newDoctor.bloodType) {
       alert('Please fill in all required fields');
       return;
+    }
+
+    // Phone validation
+    const phonePattern = /^0\d{9}$/;
+    if (!phonePattern.test(newDoctor.phone)) {
+      setPhoneError('Enter a valid Sri Lankan phone number (10 digits, starting with 0)');
+      return;
+    } else {
+      setPhoneError('');
     }
 
     try {
@@ -377,9 +386,21 @@ const DoctorManagement = () => {
                       <input
                         type="tel"
                         value={newDoctor.phone}
-                        onChange={(e) => setNewDoctor({...newDoctor, phone: e.target.value})}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setNewDoctor({ ...newDoctor, phone: value });
+                          const phonePattern = /^0\d{9}$/;
+                          if (!phonePattern.test(value)) {
+                            setPhoneError('Enter a valid Sri Lankan phone number (10 digits, starting with 0)');
+                          } else {
+                            setPhoneError('');
+                          }
+                        }}
                         required
                       />
+                      {phoneError && (
+                        <small style={{ color: 'red' }}>{phoneError}</small>
+                      )}
                     </div>
                     <div className="form-group">
                       <label>Date of Birth</label>

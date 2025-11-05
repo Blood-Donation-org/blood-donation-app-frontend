@@ -20,6 +20,7 @@ import SignInPage from './pages/SignInPage';
 import SplashScreen from './pages/SplashScreen';
 import Stock from './pages/Stock';
 import StockResult from './pages/StockResult';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -59,6 +60,7 @@ function App() {
           {/* Public routes */}
           <Route path="/" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgotpswd" element={<ForgotPasswordPage />} />
 
           {/* Protected routes */}
           <Route

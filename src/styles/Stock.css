@@ -594,31 +594,6 @@
   }
 }
 
-/* Dark Mode Support (Optional) */
-@media (prefers-color-scheme: dark) {
-  .stock-page {
-    background: #1a1a1a;
-    color: #f0f0f0;
-  }
-  
-  .blood-card {
-    background: #333;
-    border: 1px solid #555;
-  }
-  
-  .blood-info {
-    background: #404040;
-  }
-  
-  .blood-type,
-  .blood-count {
-    color: #f0f0f0;
-  }
-  
-  .stock-title {
-    color: #f0f0f0;
-  }
-  
   .stock-subtitle {
     color: #ccc;
   }
@@ -653,4 +628,3 @@
   .modal-actions {
     border-top-color: #555;
   }
-}

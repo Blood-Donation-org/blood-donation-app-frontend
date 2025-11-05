@@ -208,7 +208,9 @@ const DonorListPage = () => {
                       </div>
                       <div className="info-row">
                         <span className="info-label">PHONE :</span>
-                        <span className="info-value">{donor.phoneNumber}</span>
+                        <span className="info-value">
+                          {/^(0\d{9})$/.test(donor.phoneNumber) ? donor.phoneNumber : 'Please enter a valid contact number'}
+                        </span>
                       </div>
                       <div className="info-row">
                         <span className="info-label">BLOOD TYPE :</span>

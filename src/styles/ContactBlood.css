@@ -3,7 +3,6 @@
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   padding-top: 80px;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
-}
 
 .request-container {
   max-width: 1400px;
@@ -587,32 +586,6 @@
   }
 }
 
-/* Dark Mode Support (if needed in future) */
-@media (prefers-color-scheme: dark) {
-  .doctor-blood-request-page {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  }
-  
-  .request-content {
-    background: #333;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.3);
-  }
-  
-  .form-section-group {
-    background: #404040;
-    border-color: #555;
-  }
-  
-  .request-title,
-  .section-title,
-  .form-label {
-    color: #f0f0f0;
-  }
-  
-  .request-subtitle {
-    color: #ccc;
-  }
-  
   .form-input,
   .form-textarea,
   .form-select {
