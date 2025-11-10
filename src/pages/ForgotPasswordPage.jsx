@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo-icon.png';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/ForgotPasswordPage.css';
 
 const ForgotPasswordPage = () => {
@@ -18,7 +19,7 @@ const ForgotPasswordPage = () => {
     setMessage('');
     
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/users/forgot-password', { email });
+      const response = await axios.post(API_ENDPOINTS.USER.FORGOT_PASSWORD, { email });
       setMessage(response.data.message || 'Password reset link has been sent to your email.');
       setIsSuccess(true);
     } catch (err) {

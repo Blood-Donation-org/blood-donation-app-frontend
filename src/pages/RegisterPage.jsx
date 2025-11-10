@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/RegisterPage.css';
 
 const RegisterPage = () => {
@@ -133,7 +134,7 @@ const RegisterPage = () => {
         isDoner: formData.role === 'user',
         isPatient: false,
       };
-      await axios.post('http://localhost:5000/api/v1/users/register', payload);
+      await axios.post(API_ENDPOINTS.USER.REGISTER, payload);
       alert('Registration successful!');
       navigate('/');
     } catch (err) {

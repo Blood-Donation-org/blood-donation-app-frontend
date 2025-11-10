@@ -10,18 +10,18 @@ import ContactBlood from './pages/ContactBlood';
 import DoctorManagement from './pages/DoctorManagement';
 import DoctorRequests from './pages/DoctorRequests';
 import DonorListPage from './pages/DonorListPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import RegisterPage from './pages/RegisterPage';
 import RequestReport from './pages/RequestReport';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import SearchDonorPage from './pages/SearchDonorPage';
 import SearchResultsPage from './pages/SearchResults';
 import SignInPage from './pages/SignInPage';
 import SplashScreen from './pages/SplashScreen';
 import Stock from './pages/Stock';
 import StockResult from './pages/StockResult';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -62,7 +62,7 @@ function App() {
           <Route path="/" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgotpswd" element={<ForgotPasswordPage/>} />
-          <Route path="/resetpswd" element={<ResetPasswordPage/>} />
+          <Route path="/reset-password" element={<ResetPasswordPage/>} />
 
           {/* Protected routes */}
           <Route

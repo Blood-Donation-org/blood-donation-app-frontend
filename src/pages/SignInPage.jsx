@@ -3,6 +3,7 @@ import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo-icon.png";
 import signin from "../assets/SignIn-Register/signin.jpg";
+import { API_ENDPOINTS } from "../config/api";
 import { UserContext } from "../context/UserContext";
 import "../styles/SignInPage.css";
 
@@ -28,7 +29,7 @@ const SignInPage = () => {
     setError("");
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/users/login",
+        API_ENDPOINTS.USER.LOGIN,
         formData
       );
       // Assuming response.data contains user info and token

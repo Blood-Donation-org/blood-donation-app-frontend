@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/AddCampPage.css';
 
 const AddCampPage = () => {
@@ -34,7 +35,7 @@ const AddCampPage = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/camps/create', {
+      const response = await axios.post(API_ENDPOINTS.CAMP.CREATE, {
         campName: formData.name,
         place: formData.place,
         date: formData.date,
@@ -57,7 +58,8 @@ const AddCampPage = () => {
           organizer: '',
           message: ''
         });
-        navigate('/camps');
+        // Navigate with state to trigger refresh
+        navigate('/camps', { state: { shouldRefresh: true } });
       } else {
         alert(response.data.message || 'Failed to add camp');
       }

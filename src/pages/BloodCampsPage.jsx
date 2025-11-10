@@ -1,8 +1,9 @@
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar'; // Import the Navbar component
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/BloodCampsPage.css';
 
 const BloodCampsPage = () => {
@@ -12,6 +13,21 @@ const BloodCampsPage = () => {
   const [error, setError] = useState(null);
   const [registeredCamps, setRegisteredCamps] = useState({});
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Function to fetch camps
+  const fetchCamps = async () => {
+    try {
+      const response = await axios.get(API_ENDPOINTS.CAMP.GET_ALL);
+      // Assuming response.data is an array of camps
+      setCamps(response.data.camps || response.data || []);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching camps:', err);
+      setError(`Failed to fetch camps: ${err.message || err}`);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     // Get user data from localStorage to determine role
@@ -22,19 +38,26 @@ const BloodCampsPage = () => {
   }, []);
 
   useEffect(() => {
-    const fetchCamps = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/v1/camps');
-        // Assuming response.data is an array of camps
-        setCamps(response.data.camps || response.data || []);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching camps:', err);
-        setError(`Failed to fetch camps: ${err.message || err}`);
-        setLoading(false);
-      }
-    };
     fetchCamps();
+  }, []);
+
+  // Check if we should refresh based on navigation state
+  useEffect(() => {
+    if (location.state?.shouldRefresh) {
+      fetchCamps();
+      // Clear the state to prevent unnecessary refreshes
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  // Listen for navigation state changes to refresh camps when returning from add camp
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchCamps();
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   // Check registration status for each camp after camps are loaded
@@ -48,7 +71,7 @@ const BloodCampsPage = () => {
         camps.map(async (camp) => {
           const campId = camp._id || camp.id;
           try {
-            const res = await axios.get('http://localhost:5000/api/v1/camp-registrations/check', {
+            const res = await axios.get(API_ENDPOINTS.CAMP_REGISTRATION.CHECK, {
               params: { userId, campId }
             });
             results[campId] = res.data.registered;
@@ -79,13 +102,18 @@ const BloodCampsPage = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/camp-registrations/register', {
+      const response = await axios.post(API_ENDPOINTS.CAMP_REGISTRATION.REGISTER, {
         userId,
         campId
       });
       console.log('Registration response:', response);
       if (response.status === 201) {
         alert('Registration successful!');
+        // Update the local state to reflect the registration immediately
+        setRegisteredCamps(prev => ({
+          ...prev,
+          [campId]: true
+        }));
       } else {
         alert(response.data.message || 'Registration failed.');
       }
@@ -103,6 +131,11 @@ const BloodCampsPage = () => {
     navigate('/add-camp');
   };
 
+  const handleRefreshCamps = () => {
+    setLoading(true);
+    fetchCamps();
+  };
+
   return (
     <div className="blood-donation-camps-page">
       {/* Use the Navbar Component */}
@@ -116,6 +149,26 @@ const BloodCampsPage = () => {
             onClick={handleAddCamp}
           >
             Add Camp
+          </button>
+          <button 
+            className="refresh-btn"
+            onClick={handleRefreshCamps}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+      )}
+
+      {/* Refresh button for non-admin users */}
+      {userRole !== 'admin' && (
+        <div className="refresh-section">
+          <button 
+            className="refresh-btn"
+            onClick={handleRefreshCamps}
+            disabled={loading}
+          >
+            {loading ? 'Refreshing...' : 'Refresh Camps'}
           </button>
         </div>
       )}

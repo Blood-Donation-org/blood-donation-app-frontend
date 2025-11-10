@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import logo from '../assets/logo-icon.png';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/ResetPasswordPage.css';
 
 const ResetPasswordPage = () => {
@@ -53,7 +54,7 @@ const ResetPasswordPage = () => {
     setError('');
     
     try {
-      await axios.post('http://localhost:5000/api/v1/users/reset-password', {
+      await axios.post(API_ENDPOINTS.USER.RESET_PASSWORD, {
         token,
         password: formData.password
       });
@@ -62,7 +63,7 @@ const ResetPasswordPage = () => {
       
       // Redirect to sign in page after 3 seconds
       setTimeout(() => {
-        navigate('/signin');
+        navigate('/');
       }, 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to reset password. The link may have expired.');
@@ -195,7 +196,7 @@ const ResetPasswordPage = () => {
                 </form>
 
                 <div className="reset-password-footer">
-                  <Link to="/signin" className="back-link">
+                  <Link to="/" className="back-link">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <path d="M19 12H5M12 19l-7-7 7-7"/>
                     </svg>
@@ -221,7 +222,7 @@ const ResetPasswordPage = () => {
                   Redirecting in 3 seconds...
                 </div>
 
-                <Link to="/signin" className="primary-button">
+                <Link to="/" className="primary-button">
                   Sign In Now
                 </Link>
               </div>
