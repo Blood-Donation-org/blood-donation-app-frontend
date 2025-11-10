@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
-import dropdown from '../assets/nav_bar/dropdown-icon.png';
 import { UserContext } from '../context/UserContext';
 import '../styles/Navbar.css';
 import NotificationDropdown from './NotificationDropdown'; // import new component
@@ -24,13 +23,10 @@ const Navbar = () => {
       role = userData?.role || null;
     }
     
-    console.log('Navbar - Setting user role:', role);
-    console.log('Navbar - Current user:', currentUser);
     setUserRole(role);
   }, [currentUser]); // Update when currentUser changes
 
   const handleLogout = () => {
-    console.log('Navbar - Logging out, clearing user role');
     setUserRole(null);
     logout();
     navigate("/");
@@ -94,12 +90,15 @@ const Navbar = () => {
               onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
             >
               My Profile                
-              <img src={dropdown} alt="dropdown-icon" className={`drop-icon ${isProfileDropdownOpen ? 'open' : ''}`}
+              <svg 
                 width="12" 
                 height="8" 
-                viewBox="0 0 12 8"                  
-                fill="none"/>
-                <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>               
+                viewBox="0 0 12 8"
+                fill="none"
+                className={`drop-icon ${isProfileDropdownOpen ? 'open' : ''}`}
+              >
+                <path d="M1 1L6 6L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </button>
 
             {isProfileDropdownOpen && (

@@ -46,20 +46,14 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('userData');
-    console.log('UserContext - Loading from localStorage:', storedUser);
     if (storedUser) {
       const parsed = JSON.parse(storedUser);
-      console.log('UserContext - Parsed user data:', parsed);
-      console.log('UserContext - User data keys:', Object.keys(parsed));
       
       // Check if this is old format (has .user property) and migrate
       if (parsed.user && parsed.message && parsed.token) {
-        console.log('UserContext - Detected old format, migrating...');
-        console.log('UserContext - Migrating user data:', parsed.user);
         setCurrentUser(parsed.user);
         localStorage.setItem('userData', JSON.stringify(parsed.user));
       } else {
-        console.log('UserContext - User ID from localStorage:', parsed.id);
         setCurrentUser(parsed);
       }
     }
@@ -67,12 +61,8 @@ export const UserProvider = ({ children }) => {
 
   // Accepts user object from backend response
   const setUserFromBackend = (userObj) => {
-    console.log('UserContext - Setting user from backend:', userObj);
-    console.log('UserContext - User object keys:', Object.keys(userObj || {}));
-    console.log('UserContext - User ID:', userObj?.id);
     setCurrentUser(userObj);
     localStorage.setItem('userData', JSON.stringify(userObj));
-    console.log('UserContext - Saved to localStorage:', JSON.stringify(userObj));
   };
 
   const registerUser = (userData) => {

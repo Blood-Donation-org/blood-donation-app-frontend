@@ -23,7 +23,6 @@ const BloodCampsPage = () => {
       setCamps(response.data.camps || response.data || []);
       setLoading(false);
     } catch (err) {
-      console.error('Error fetching camps:', err);
       setError(`Failed to fetch camps: ${err.message || err}`);
       setLoading(false);
     }

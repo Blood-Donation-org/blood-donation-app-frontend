@@ -34,8 +34,6 @@ const SignInPage = () => {
       );
       // Extract user data from backend response
       const userData = response.data.user;
-      console.log('Login response:', response.data);
-      console.log('User data being saved:', userData);
       setUserFromBackend(userData);
       navigate("/home");
     } catch (err) {

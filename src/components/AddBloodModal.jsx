@@ -72,7 +72,6 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
         alert(response.data.message || 'Failed to add blood inventory');
       }
     } catch (error) {
-      console.error('Error adding blood:', error);
       if (error.response?.data?.message) {
         alert(error.response.data.message);
       } else {
