@@ -13,6 +13,20 @@ const NotificationDropdown = ({ userRole }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastUserId, setLastUserId] = useState(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Function to manually trigger notification refresh
+  const refreshNotifications = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
+  // Expose refresh function globally
+  useEffect(() => {
+    globalThis.refreshNotifications = refreshNotifications;
+    return () => {
+      delete globalThis.refreshNotifications;
+    };
+  }, []);
 
   // Clear notifications when user changes
   useEffect(() => {
@@ -54,12 +68,12 @@ const NotificationDropdown = ({ userRole }) => {
     };
 
     fetchNotifications();
-    // Poll for new notifications every 30s if user is logged in
+    // Poll for new notifications every 5s if user is logged in (reduced for better responsiveness)
     if (currentUser && currentUser.id) {
-      const interval = setInterval(fetchNotifications, 30000);
+      const interval = setInterval(fetchNotifications, 5000);
       return () => clearInterval(interval);
     }
-  }, [currentUser, userRole]);
+  }, [currentUser, userRole, refreshTrigger]);
 
   // Remove loadNotifications and sample notification logic
 

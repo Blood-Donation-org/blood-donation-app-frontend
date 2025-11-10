@@ -32,7 +32,7 @@ const BloodCampsPage = () => {
     // Get user data from localStorage to determine role
     const storedUserData = JSON.parse(localStorage.getItem('userData'));
     if (storedUserData) {
-      setUserRole(storedUserData.user.role);
+      setUserRole(storedUserData.role);
     }
   }, []);
 
@@ -63,7 +63,7 @@ const BloodCampsPage = () => {
   useEffect(() => {
     const checkRegistrations = async () => {
       const storedUserData = JSON.parse(localStorage.getItem('userData'));
-      const userId = storedUserData?.user?.id;
+      const userId = storedUserData?.id;
       if (!userId || camps.length === 0) return;
       const results = {};
       await Promise.all(
@@ -75,7 +75,6 @@ const BloodCampsPage = () => {
             });
             results[campId] = res.data.registered;
           } catch (err) {
-            console.error(`Error checking registration for camp ${campId}:`, err);
             results[campId] = false;
           }
         })
@@ -88,12 +87,7 @@ const BloodCampsPage = () => {
   const handleRegister = async (campId) => {
     // Get userId from localStorage
     const storedUserData = JSON.parse(localStorage.getItem('userData'));
-    const userId = storedUserData?.user?.id;
-    const camp = camps.find(c => c._id === campId || c.id === campId);
-    console.log('Register button clicked');
-    console.log('userId:', userId);
-    console.log('campId:', campId);
-    console.log('camp object:', camp);
+    const userId = storedUserData?.id;
 
     if (!userId || !campId) {
       alert('User or camp information missing.');
@@ -105,19 +99,29 @@ const BloodCampsPage = () => {
         userId,
         campId
       });
-      console.log('Registration response:', response);
       if (response.status === 201) {
-        alert('Registration successful!');
+        alert('Registration successful! You will receive notifications about your next eligible donation date.');
         // Update the local state to reflect the registration immediately
         setRegisteredCamps(prev => ({
           ...prev,
           [campId]: true
         }));
+        
+        // Trigger immediate notification refresh
+        if (globalThis.refreshNotifications) {
+          globalThis.refreshNotifications();
+        }
+        
+        // Also trigger refresh after a delay to ensure backend processing is complete
+        setTimeout(() => {
+          if (globalThis.refreshNotifications) {
+            globalThis.refreshNotifications();
+          }
+        }, 2000);
       } else {
         alert(response.data.message || 'Registration failed.');
       }
     } catch (error) {
-      console.error('Registration error:', error);
       if (error.response?.data?.message) {
         alert(error.response.data.message);
       } else {
