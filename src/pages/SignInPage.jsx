@@ -32,9 +32,10 @@ const SignInPage = () => {
         API_ENDPOINTS.USER.LOGIN,
         formData
       );
-      // Assuming response.data contains user info and token
-      const userData = response.data;
-      console.log(userData);
+      // Extract user data from backend response
+      const userData = response.data.user;
+      console.log('Login response:', response.data);
+      console.log('User data being saved:', userData);
       setUserFromBackend(userData);
       navigate("/home");
     } catch (err) {

@@ -1,11 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
+/* Minimal dark mode prevention at global level */
+@media (prefers-color-scheme: dark) {
+  html, body, #root {
+    background: #f8f9fa !important;
+    color: #222 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}
+
 html, body {
   background: #f8f9fa !important;
   color: #222 !important;
   -webkit-text-fill-color: #222 !important;
   /* Prevent browser/OS dark mode auto-invert */
-  forced-color-adjust: none;
+  forced-color-adjust: none !important;
+  color-scheme: light !important;
+  /* Prevent webkit from inverting colors */
+  -webkit-color-scheme: light !important;
 }
 
 :root {
@@ -18,12 +31,17 @@ html, body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Force light color scheme */
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
 }
 
 body {
@@ -31,11 +49,14 @@ body {
   padding: 0;
   min-height: 100vh;
   background-color: #ffffff;
+  color: #213547;
 }
 
 #root {
   width: 100%;
   min-height: 100vh;
+  background-color: #ffffff;
+  color: #213547;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -63,7 +84,21 @@ input, textarea {
   font-family: inherit;
 }
 
+select {
+  font-family: inherit;
+}
+
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* Minimal form element dark mode prevention for basic elements only */
+input:not([class]):-webkit-autofill,
+input:not([class]):-webkit-autofill:hover,
+input:not([class]):-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #213547 !important;
+  background-color: #ffffff !important;
+  color: #213547 !important;
 }

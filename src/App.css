@@ -1,18 +1,32 @@
+/* Force Light Theme for App Component */
 .app {
   width: 100%;
   min-height: 100vh;
+  background-color: #ffffff !important;
+  color: #213547 !important;
+  /* Override system color scheme preferences */
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
 }
 
+/* Global overrides to prevent dark mode */
 * {
   box-sizing: border-box;
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
 }
 
+/* Force light theme on body */
 body {
   margin: 0;
   padding: 0;
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #ffffff !important;
+  color: #213547 !important;
+  /* Prevent any dark mode auto-adjustments */
+  forced-color-adjust: none !important;
 }
 
 a {
@@ -23,8 +37,30 @@ a {
 button {
   font-family: inherit;
   cursor: pointer;
+  background-color: inherit;
+  color: inherit;
 }
 
 input {
   font-family: inherit;
+  background-color: #ffffff !important;
+  color: #213547 !important;
+}
+
+/* Additional dark mode prevention */
+@media (prefers-color-scheme: dark) {
+  .app,
+  body,
+  html,
+  #root {
+    background-color: #ffffff !important;
+    color: #213547 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+  
+  * {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+  }
 }

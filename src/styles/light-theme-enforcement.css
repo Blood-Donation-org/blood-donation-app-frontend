@@ -1,0 +1,83 @@
+/* Minimal Dark Mode Prevention - Preserves All Existing Styles */
+
+/* Browser-level dark mode prevention */
+:root {
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+}
+
+html {
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+  forced-color-adjust: none !important;
+}
+
+body {
+  color-scheme: light !important;
+  -webkit-color-scheme: light !important;
+  forced-color-adjust: none !important;
+}
+
+/* Override system dark mode preference without affecting component styles */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+  }
+  
+  html {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+    forced-color-adjust: none !important;
+  }
+  
+  body {
+    color-scheme: light !important;
+    -webkit-color-scheme: light !important;
+    forced-color-adjust: none !important;
+  }
+  
+  /* Force light theme for ALL form elements regardless of classes */
+  input,
+  textarea,
+  select {
+    background-color: white !important;
+    color: #213547 !important;
+    -webkit-text-fill-color: #213547 !important;
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: #6c757d !important;
+    -webkit-text-fill-color: #6c757d !important;
+    opacity: 1 !important;
+  }
+  
+  /* Prevent webkit from auto-inverting colors */
+  * {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}
+
+/* Force light theme for ALL form autofill elements */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #213547 !important;
+  background-color: white !important;
+  color: #213547 !important;
+}
+
+/* Prevent system from inverting any images or components */
+img, svg, canvas, video {
+  filter: none !important;
+  -webkit-filter: none !important;
+}

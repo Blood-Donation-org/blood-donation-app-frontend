@@ -11,16 +11,27 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);
-  const { logout } = useContext(UserContext);
+  const { currentUser, logout } = useContext(UserContext);
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (userData?.user?.role) {
-      setUserRole(userData.user.role);
+    // Get user role from context or localStorage, with context taking priority
+    let role = null;
+    
+    if (currentUser?.role) {
+      role = currentUser.role;
+    } else {
+      const userData = JSON.parse(localStorage.getItem('userData') || 'null');
+      role = userData?.role || null;
     }
-  }, []);
+    
+    console.log('Navbar - Setting user role:', role);
+    console.log('Navbar - Current user:', currentUser);
+    setUserRole(role);
+  }, [currentUser]); // Update when currentUser changes
 
   const handleLogout = () => {
+    console.log('Navbar - Logging out, clearing user role');
+    setUserRole(null);
     logout();
     navigate("/");
   };
