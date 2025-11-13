@@ -37,7 +37,10 @@ const ChangePassword = () => {
     setIsLoading(true);
 
     const userData = JSON.parse(localStorage.getItem('userData'));
-    if (!userData || !userData.user.id) {
+      console.log(userData);
+      
+    if (!userData || !userData.id) {
+    
       alert('User session expired. Please login again.');
       setIsLoading(false);
       navigate('/');
@@ -45,7 +48,7 @@ const ChangePassword = () => {
     }
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/v1/users/change-password/${userData.user.id}`,
+      const response = await axios.put(`http://localhost:5000/api/v1/users/change-password/${userData.id}`,
         {
           currentPassword: formData.currentPassword,
           newPassword: formData.newPassword,

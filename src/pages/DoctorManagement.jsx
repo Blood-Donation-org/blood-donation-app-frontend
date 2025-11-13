@@ -31,7 +31,8 @@ const DoctorManagement = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
-    if (user && user.user.role === 'admin') {
+    console.log('Logged in user data:', user);
+    if (user && user.role === 'admin') {
       setUserData(user);
       fetchDoctors();
     } else {

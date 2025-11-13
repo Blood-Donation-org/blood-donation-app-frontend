@@ -1,8 +1,8 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import '../styles/Profile.css';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import "../styles/Profile.css";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -11,13 +11,29 @@ const Profile = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUserData = JSON.parse(localStorage.getItem('userData'));
-  if (!storedUserData?.user) {
-      navigate('/signin');
+    // Safely parse userData from localStorage and support both shapes:
+    // - { user: { ... } }
+    // - { ...user fields... } (user stored at top-level)
+    const raw = localStorage.getItem("userData");
+    let parsed = null;
+    try {
+      parsed = raw ? JSON.parse(raw) : null;
+    } catch (err) {
+      console.warn('Failed to parse userData from localStorage', err);
+      parsed = null;
+    }
+
+    // Normalize: prefer nested `user` object if present
+    const userObj = parsed?.user ?? parsed;
+
+    // Accept either id or _id as identifier on the user object
+    if (!userObj || !(userObj.id || userObj._id)) {
+      navigate("/");
       return;
     }
-    setUserData(storedUserData.user);
-    setFormData(storedUserData.user);
+
+    setUserData(userObj);
+    setFormData(userObj);
   }, [navigate]);
 
   const handleEdit = () => {
@@ -31,16 +47,29 @@ const Profile = () => {
         `http://localhost:5000/api/v1/users/update/${userId}`,
         formData
       );
-  if (response.data?.user) {
-        setUserData(response.data.user);
-        setFormData(response.data.user);
-        localStorage.setItem('userData', JSON.stringify({ user: response.data.user }));
+      // Backend may return updated user directly or nested in `user`.
+      const updatedUser = response.data?.user ?? response.data ?? null;
+      if (updatedUser) {
+        setUserData(updatedUser);
+        setFormData(updatedUser);
+        // Persist in the same nested shape used elsewhere in the app
+        try {
+          localStorage.setItem("userData", JSON.stringify({ user: updatedUser }));
+        } catch (err) {
+          console.warn('Failed to persist updated user to localStorage', err);
+        }
         setIsEditing(false);
+        alert('Profile updated successfully');
         // Optionally, update context if needed
+      } else {
+        // If backend didn't return the updated user, at least stop editing
+        setIsEditing(false);
+        alert('Profile update completed');
       }
     } catch (error) {
-      console.error('Update failed:', error);
-      // Optionally, show error to user
+      console.error("Update failed:", error);
+      const message = error?.response?.data?.message || 'Failed to update profile. Please try again.';
+      alert(message);
     }
   };
 
@@ -52,7 +81,7 @@ const Profile = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -68,21 +97,29 @@ const Profile = () => {
           <div className="profile-header">
             <div className="profile-avatar">
               <div className="avatar-circle">
-                {userData.fullName ? userData.fullName.charAt(0) : '?'}
+                {userData.fullName ? userData.fullName.charAt(0) : "?"}
               </div>
             </div>
             <div className="profile-info">
               <h1 className="profile-name">{userData.fullName}</h1>
-              <p className="profile-role">{userData.role === 'admin' ? 'System Administrator' : 'Doctor'}</p>
+              <p className="profile-role">
+                {userData.role === "admin" ? "System Administrator" : "Doctor"}
+              </p>
               {/* <span className={`role-badge ${userData.role ? userData.role.toLowerCase() : 'unknown'}`}>{userData.role || 'Unknown'}</span> */}
             </div>
             <div className="profile-actions">
               {!isEditing ? (
-                <button className="edit-btn" onClick={handleEdit}>Edit Profile</button>
+                <button className="edit-btn" onClick={handleEdit}>
+                  Edit Profile
+                </button>
               ) : (
                 <>
-                  <button className="save-btn" onClick={handleSave}>Save Changes</button>
-                  <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                  <button className="save-btn" onClick={handleSave}>
+                    Save Changes
+                  </button>
+                  <button className="cancel-btn" onClick={handleCancel}>
+                    Cancel
+                  </button>
                 </>
               )}
             </div>
@@ -94,13 +131,15 @@ const Profile = () => {
               <h2 className="section-title">Basic Information</h2>
               <div className="info-grid">
                 <div className="info-item">
-                  <label className="info-label" htmlFor="profile-name">Full Name</label>
+                  <label className="info-label" htmlFor="profile-name">
+                    Full Name
+                  </label>
                   {isEditing ? (
                     <input
                       id="profile-name"
                       type="text"
                       name="fullName"
-                      value={formData.fullName || ''}
+                      value={formData.fullName || ""}
                       onChange={handleChange}
                       className="info-input"
                     />
@@ -110,13 +149,15 @@ const Profile = () => {
                 </div>
 
                 <div className="info-item">
-                  <label className="info-label" htmlFor="profile-email">Email Address</label>
+                  <label className="info-label" htmlFor="profile-email">
+                    Email Address
+                  </label>
                   {isEditing ? (
                     <input
                       id="profile-email"
                       type="email"
                       name="email"
-                      value={formData.email || ''}
+                      value={formData.email || ""}
                       onChange={handleChange}
                       className="info-input"
                     />
@@ -126,13 +167,15 @@ const Profile = () => {
                 </div>
 
                 <div className="info-item">
-                  <label className="info-label" htmlFor="profile-phone">Phone Number</label>
+                  <label className="info-label" htmlFor="profile-phone">
+                    Phone Number
+                  </label>
                   {isEditing ? (
                     <input
                       id="profile-phone"
                       type="tel"
                       name="phoneNumber"
-                      value={formData.phoneNumber || ''}
+                      value={formData.phoneNumber || ""}
                       onChange={handleChange}
                       className="info-input"
                     />
@@ -142,28 +185,36 @@ const Profile = () => {
                 </div>
 
                 <div className="info-item">
-                  <label className="info-label" htmlFor="profile-dob">Date of Birth</label>
+                  <label className="info-label" htmlFor="profile-dob">
+                    Date of Birth
+                  </label>
                   {isEditing ? (
                     <input
                       id="profile-dob"
                       type="date"
                       name="dob"
-                      value={formData.dob || ''}
+                      value={formData.dob || ""}
                       onChange={handleChange}
                       className="info-input"
                     />
                   ) : (
-                    <span className="info-value">{userData.dob ? new Date(userData.dob).toLocaleDateString() : ''}</span>
+                    <span className="info-value">
+                      {userData.dob
+                        ? new Date(userData.dob).toLocaleDateString()
+                        : ""}
+                    </span>
                   )}
                 </div>
 
                 <div className="info-item full-width">
-                  <label className="info-label" htmlFor="profile-address">Address</label>
+                  <label className="info-label" htmlFor="profile-address">
+                    Address
+                  </label>
                   {isEditing ? (
                     <textarea
                       id="profile-address"
                       name="address"
-                      value={formData.address || ''}
+                      value={formData.address || ""}
                       onChange={handleChange}
                       className="info-textarea"
                       rows="2"
