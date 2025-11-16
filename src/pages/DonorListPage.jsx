@@ -49,8 +49,6 @@ const DonorListPage = () => {
     setIsLocationOpen(false);
   };
 
-<<<<<<< HEAD
-=======
   const handleClearFilters = () => {
     setSelectedBloodGroup('');
     setSelectedLocation('');
@@ -65,25 +63,15 @@ const DonorListPage = () => {
   //   }
   // };
 
->>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
   const handleRequest = (donorName) => {
     alert(`Request sent to ${donorName}`);
   };
 
   // Filter donors based on search criteria
-<<<<<<< HEAD
-  const filteredDonors = donors.filter(donor => {
-    const bloodTypeMatch = selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true;
-    const locationMatch = selectedLocation ? 
-      donor.address?.toLowerCase().includes(selectedLocation.toLowerCase()) : true;
-    return bloodTypeMatch && locationMatch;
-  });
-=======
   const filteredDonors = donors.filter(donor => 
     (selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true) &&
     (selectedLocation ? donor.address && donor.address.toLowerCase().includes(selectedLocation.toLowerCase()) : true)
   );
->>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
 
   // Close dropdowns when clicking outside
   const handleOutsideClick = (e) => {

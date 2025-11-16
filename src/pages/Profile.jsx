@@ -13,22 +13,17 @@ const Profile = () => {
   const { setUserFromBackend } = useContext(UserContext);
 
   useEffect(() => {
-    // Safely parse userData from localStorage and support both shapes:
-    // - { user: { ... } }
-    // - { ...user fields... } (user stored at top-level)
+    // Get userData from localStorage - should be direct user object
     const raw = localStorage.getItem("userData");
-    let parsed = null;
+    let userObj = null;
     try {
-      parsed = raw ? JSON.parse(raw) : null;
+      userObj = raw ? JSON.parse(raw) : null;
     } catch (err) {
       console.warn('Failed to parse userData from localStorage', err);
-      parsed = null;
+      userObj = null;
     }
 
-    // Normalize: prefer nested `user` object if present
-    const userObj = parsed?.user ?? parsed;
-
-    // Accept either id or _id as identifier on the user object
+    // Check if user object exists and has valid ID
     if (!userObj || !(userObj.id || userObj._id)) {
       navigate("/");
       return;
@@ -56,15 +51,8 @@ const Profile = () => {
         setFormData(updatedUser);
         // Update UserContext to prevent redirect
         setUserFromBackend(updatedUser);
-        // Persist in the same nested shape used elsewhere in the app
-        try {
-          localStorage.setItem("userData", JSON.stringify({ user: updatedUser }));
-        } catch (err) {
-          console.warn('Failed to persist updated user to localStorage', err);
-        }
         setIsEditing(false);
         alert('Profile updated successfully');
-        // Optionally, update context if needed
       } else {
         // If backend didn't return the updated user, at least stop editing
         setIsEditing(false);
