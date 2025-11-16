@@ -182,20 +182,43 @@ const DoctorRequests = () => {
                         value={request.confirmationStatus || 'unconfirmed'}
                         onChange={async (e) => {
                           const newConfirmation = e.target.value;
+                          console.log('Updating confirmation status to:', newConfirmation);
+                          console.log('Request ID:', request._id || request.id);
+                          
                           try {
-                            const res = await axios.patch(
-                              `http://localhost:5000/api/v1/blood-requests/update-confirmation/${request._id || request.id}`,
-                              { confirmationStatus: newConfirmation }
-                            );
+                            const requestId = request._id || request.id;
+                            const url = `http://localhost:5000/api/v1/blood-requests/update-confirmation/${requestId}`;
+                            const payload = { confirmationStatus: newConfirmation };
+                            
+                            console.log('Making PATCH request to:', url);
+                            console.log('With payload:', payload);
+                            
+                            const res = await axios.patch(url, payload);
+                            
+                            console.log('Response received:', res.data);
                             alert(res.data.message || 'Confirmation status updated successfully');
+                            
                             // Update local state
                             setRequests(prev => prev.map(r =>
-                              (r._id || r.id) === (request._id || request.id)
+                              (r._id || r.id) === requestId
                                 ? { ...r, confirmationStatus: newConfirmation }
                                 : r
                             ));
+                            
+                            // Trigger notification refresh if available
+                            if (globalThis.refreshNotifications) {
+                              globalThis.refreshNotifications();
+                            }
+                            
                           } catch (error) {
-                            alert(error.response?.data?.message || 'Failed to update confirmation status');
+                            console.error('Error updating confirmation status:', error);
+                            console.error('Error response:', error.response?.data);
+                            
+                            const errorMessage = error.response?.data?.message || 'Failed to update confirmation status';
+                            alert(errorMessage);
+                            
+                            // Reset dropdown to original value on error
+                            e.target.value = request.confirmationStatus || 'unconfirmed';
                           }
                         }}
                         className="confirmation-dropdown"

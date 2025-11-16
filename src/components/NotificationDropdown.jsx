@@ -7,6 +7,55 @@ import { UserContext } from '../context/UserContext';
 import '../styles/Navbar.css';
 import '../styles/Notification.css';
 
+// Add doctor notification styles
+const doctorNotificationStyles = `
+  .doctor-notification {
+    border-left: 4px solid #007bff;
+  }
+  .status-message {
+    font-weight: bold;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .status-approved {
+    color: #28a745;
+  }
+  .status-rejected {
+    color: #dc3545;
+  }
+  .status-not-available {
+    color: #ffc107;
+  }
+  .request-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+  }
+  .request-details span {
+    padding: 2px 0;
+  }
+  .urgency-critical {
+    color: #dc3545;
+  }
+  .urgency-urgent {
+    color: #fd7e14;
+  }
+  .urgency-normal {
+    color: #28a745;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined' && !document.getElementById('doctor-notification-styles')) {
+  const style = document.createElement('style');
+  style.id = 'doctor-notification-styles';
+  style.textContent = doctorNotificationStyles;
+  document.head.appendChild(style);
+}
+
 const NotificationDropdown = ({ userRole }) => {
   const { currentUser } = useContext(UserContext);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -62,6 +111,7 @@ const NotificationDropdown = ({ userRole }) => {
         setUnreadCount(unread);
         
       } catch (error) {
+        console.error('Error fetching notifications:', error);
         setNotifications([]);
         setUnreadCount(0);
       }
@@ -118,6 +168,7 @@ const NotificationDropdown = ({ userRole }) => {
         })));
         setUnreadCount(0);
       } catch (error) {
+        console.error('Error marking notifications as read:', error);
         // Error handling for marking notifications as read
       }
     }
@@ -139,6 +190,7 @@ const NotificationDropdown = ({ userRole }) => {
       setUnreadCount(0);
       setIsNotificationOpen(false);
     } catch (error) {
+      console.error('Error clearing notifications:', error);
       // Still update local state even if API calls fail
       setNotifications([]);
       setUnreadCount(0);
@@ -158,34 +210,48 @@ const NotificationDropdown = ({ userRole }) => {
 
   // Render notification from backend API
   const renderNotificationContent = (notification) => {
-    // For doctor: show only confirmation status notifications
-    if (userRole === 'doctor' && notification.relatedRequest) {
-      const conf = notification.relatedRequest.confirmationStatus;
-      if (conf === 'confirmed' || conf === 'unconfirmed' || conf === 'rejected') {
-        return (
-          <div className="notification-card">
-            <div className="notification-card-header">
-              <span className="notification-card-icon">🩸</span>
-              <span className="notification-card-title">
-                {notification.relatedRequest.patientName}
-              </span>
-              <span className={`notification-card-bloodtype bloodtype-${notification.relatedRequest.bloodType.replace('+','plus').replace('-','minus')}`}>{notification.relatedRequest.bloodType}</span>
-              <span className="notification-card-time">{formatTimeAgo(notification.createdAt)}</span>
-            </div>
-            <div className="notification-card-body">
-              <span className="notification-card-message">
-                Request for <strong>{notification.relatedRequest.unitsRequired}</strong> units in <strong>{notification.relatedRequest.wardNumber}</strong> is
-                <span className={`confirm-${conf}`}> {conf.charAt(0).toUpperCase() + conf.slice(1)}</span>.
-              </span>
-            </div>
-            <div className="notification-card-details">
-              <span className={`notification-card-detail status-${notification.relatedRequest.status}`}>{notification.relatedRequest.status}</span>
-              <span className={`notification-card-detail confirm-${conf}`}>{conf.charAt(0).toUpperCase() + conf.slice(1)}</span>
+    // For doctor: show only status update notifications
+    if (userRole === 'doctor') {
+      const request = notification.relatedRequest;
+      if (!request) return null;
+      
+      const getStatusMessage = (status) => {
+        switch (status) {
+          case 'approved': return 'Request Approved';
+          case 'rejected': return 'Request Rejected';
+          case 'not_available': return 'Blood Not Available';
+          default: return 'Status Updated';
+        }
+      };
+      
+      const getStatusClass = (status) => {
+        switch (status) {
+          case 'approved': return 'status-approved';
+          case 'rejected': return 'status-rejected';
+          case 'not_available': return 'status-not-available';
+          default: return 'status-pending';
+        }
+      };
+
+      return (
+        <div className="notification-card doctor-notification">
+          <div className="notification-card-header">
+            <span className="notification-card-icon">🩸</span>
+            <span className="notification-card-title">
+              Patient: {request.patientName}
+            </span>
+            <span className={`notification-card-bloodtype bloodtype-${request.bloodType.replace('+','plus').replace('-','minus')}`}>
+              {request.bloodType}
+            </span>
+            <span className="notification-card-time">{formatTimeAgo(notification.createdAt)}</span>
+          </div>
+          <div className="notification-card-body">
+            <div className={`status-message ${getStatusClass(request.status)}`}>
+              {getStatusMessage(request.status)}
             </div>
           </div>
-        );
-      }
-      return null;
+        </div>
+      );
     }
     // For admin: keep existing style
     // Modern card style notification
@@ -221,28 +287,30 @@ const NotificationDropdown = ({ userRole }) => {
   const getNotificationHeaderTitle = () => {
     switch (userRole) {
       case 'admin': return 'Blood Requests';
-      case 'doctor': return 'Request Updates';
+      case 'doctor': return 'Request Status Updates';
       default: return 'Notifications';
     }
   };
 
   // Show donation_reminder only for user role 'user', exclude for admin and doctor
   const getFilteredNotifications = () => {
-    // Show all notifications for all user types
-    return notifications;
-    
-    // Original filtering logic (commented out for debugging)
-    /*
-    if (userRole === 'user') {
-      const filtered = notifications.filter(n => n.type === 'donation_reminder' || n.type === 'general' || n.type === 'blood-request');
-      console.log('Filtered for user role:', filtered.length);
-      return filtered;
+    if (userRole === 'doctor') {
+      // For doctors, only show notifications about blood request status changes (approved/rejected)
+      return notifications.filter(notification => {
+        return notification.type === 'blood-request' && 
+               notification.relatedRequest && 
+               (notification.relatedRequest.status === 'approved' || 
+                notification.relatedRequest.status === 'rejected' ||
+                notification.relatedRequest.status === 'not_available');
+      });
     }
-    // For admin and doctor, exclude donation_reminder notifications  
-    const filtered = notifications.filter(n => n.type !== 'donation_reminder');
-    console.log('Filtered for admin/doctor role:', filtered.length);
-    return filtered;
-    */
+    
+    if (userRole === 'user') {
+      return notifications.filter(n => n.type === 'donation_reminder' || n.type === 'general' || n.type === 'blood-request');
+    }
+    
+    // For admin, show all notifications
+    return notifications;
   };
 
   return (
