@@ -15,9 +15,9 @@ const DoctorRequests = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
-    if (user && user.user.role === 'doctor') {
+    if (user && user.role === 'doctor') {
       setUserData(user);
-      loadDoctorRequests(user.user.id);
+      loadDoctorRequests(user.id);
     } else {
       navigate('/');
     }

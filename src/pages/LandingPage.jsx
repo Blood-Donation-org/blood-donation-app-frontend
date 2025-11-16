@@ -1,9 +1,8 @@
-import React from 'react';
-import '../styles/LandingPage.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Navbar from '../components/Navbar'; 
 import doctors from '../assets/landing_page/landing-image-1.png';
 import bloodDonation from '../assets/landing_page/landing-image-2.png';
+import Navbar from '../components/Navbar';
+import '../styles/LandingPage.css';
 
 const LandingPage = () => {
   return (

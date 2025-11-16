@@ -13,7 +13,7 @@ const RequestReport = () => {
     // Get current user data
     const userData = JSON.parse(localStorage.getItem("userData"));
     setCurrentUser(userData);
-    setUserRole(userData?.user?.role);
+    setUserRole(userData?.role); // Fixed: use userData.role instead of userData.user.role
 
     // Load requests from backend API
     const fetchRequests = async () => {
@@ -24,37 +24,24 @@ const RequestReport = () => {
         );
         console.log("Blood requests API response:", response);
         const allRequests = response.data.bloodRequests || response.data || [];
-        if (userData?.user?.role === "admin") {
+        if (userData?.role === "admin") {
           setRequests(allRequests);
         } else {
-          // Try to match doctorId or userId
-          const userId = userData?.id || userData?.userId;
-          let userRequests;
-          if (allRequests.length > 0 && "doctorId" in allRequests[0]) {
-            userRequests = allRequests.filter((r) => r.doctorId === userId);
-          } else if ("userId" in allRequests[0]) {
-            userRequests = allRequests.filter((r) => r.userId === userId);
-          } else {
-            userRequests = allRequests;
-          }
+          // Filter requests for current user (doctor)
+          const userId = userData?.id;
+          const userRequests = allRequests.filter((request) => {
+            return request.user && request.user._id === userId;
+          });
           setRequests(userRequests);
         }
       } catch (error) {
+        console.error('Error fetching blood requests:', error);
         setRequests([]);
       }
       setLoading(false);
     };
     fetchRequests();
   }, []);
-
-  const REQUIRED_FIELDS = [
-    "patientName",
-    "doctorName",
-    "doctorId",
-    "bloodType",
-    "wardNumber",
-    "status",
-  ];
 
   const getConfirmationBadge = (confirmation) => {
     if (confirmation === "received") {
@@ -69,22 +56,6 @@ const RequestReport = () => {
         Not Received
       </span>
     );
-  };
-
-  const handleStatusChange = (requestId, newStatus) => {
-    // Update the status of the request
-    const updatedRequests = requests.map((request) =>
-      request.id === requestId ? { ...request, status: newStatus } : request
-    );
-
-    setRequests(updatedRequests);
-
-    // Update localStorage
-    const allRequests = JSON.parse(localStorage.getItem("bloodRequests")) || [];
-    const updatedAllRequests = allRequests.map((request) =>
-      request.id === requestId ? { ...request, status: newStatus } : request
-    );
-    localStorage.setItem("bloodRequests", JSON.stringify(updatedAllRequests));
   };
 
   const getStatusBadge = (status) => {
@@ -107,27 +78,6 @@ const RequestReport = () => {
 
     return (
       <span className={`status-badge ${config.className}`}>{config.text}</span>
-    );
-  };
-
-  const getStatusDropdown = (request) => {
-    // Only allow admin to select "Available" or "Not Available"
-    return (
-      <select
-        value={
-          request.status === "approved"
-            ? "approved"
-            : request.status === "not_available"
-            ? "not_available"
-            : "pending"
-        }
-        onChange={(e) => handleStatusChange(request.id, e.target.value)}
-        className="status-dropdown"
-      >
-        <option value="pending">Issued</option>
-        <option value="approved">Not available</option>
-        <option value="not_available">Not issued</option>
-      </select>
     );
   };
 
@@ -160,8 +110,8 @@ const RequestReport = () => {
               <thead>
                 <tr>
                   <th>Patient Name</th>
-                  <th>User Name</th>
-                  <th>DOCTOR ID</th>
+                  <th>Doctor Name</th>
+                  <th>Medical License</th>
                   <th>Blood Type</th>
                   <th>Ward Number</th>
                   <th>Status</th>
@@ -172,12 +122,12 @@ const RequestReport = () => {
                 {requests.map((request) => (
                   <tr key={request.id}>
                     <td data-label="Patient Name">{request.patientName}</td>
-                    <td data-label="User Name">
+                    <td data-label="Doctor Name">
                       {request.user && request.user.fullName
                         ? request.user.fullName
                         : "N/A"}
                     </td>
-                    <td data-label="User ID">
+                    <td data-label="Medical License">
                       {request.doctorProfile && request.doctorProfile.medicalLicenseNumber
                         ? request.doctorProfile.medicalLicenseNumber
                         : "N/A"}
@@ -215,6 +165,7 @@ const RequestReport = () => {
                                 )
                               );
                             } catch (err) {
+                              console.error('Error updating status:', err);
                               // Optionally show error
                             }
                           }}
@@ -230,7 +181,7 @@ const RequestReport = () => {
                     </td>
                     <td data-label="Confirmation">
                       {getConfirmationBadge(
-                        request.confirmation || "not_received"
+                        request.confirmationStatus === "confirmed" ? "received" : "not_received"
                       )}
                     </td>
                   </tr>
