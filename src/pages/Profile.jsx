@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { UserContext } from "../context/UserContext";
 import "../styles/Profile.css";
 
 const Profile = () => {
@@ -9,6 +10,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
+  const { setUserFromBackend } = useContext(UserContext);
 
   useEffect(() => {
     // Safely parse userData from localStorage and support both shapes:
@@ -52,6 +54,8 @@ const Profile = () => {
       if (updatedUser) {
         setUserData(updatedUser);
         setFormData(updatedUser);
+        // Update UserContext to prevent redirect
+        setUserFromBackend(updatedUser);
         // Persist in the same nested shape used elsewhere in the app
         try {
           localStorage.setItem("userData", JSON.stringify({ user: updatedUser }));
