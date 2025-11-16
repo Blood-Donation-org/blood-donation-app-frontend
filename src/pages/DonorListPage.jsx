@@ -18,6 +18,7 @@ const DonorListPage = () => {
         const response = await axios.get('http://localhost:5000/api/v1/users/role/user');
         // Adjust according to backend response structure
         const donorList = response.data.users || response.data || [];
+        console.log('Fetched donors:', donorList); // Debug log
         setDonors(donorList);
       } catch (err) {
         console.error('Error fetching donors:', err);
@@ -48,6 +49,8 @@ const DonorListPage = () => {
     setIsLocationOpen(false);
   };
 
+<<<<<<< HEAD
+=======
   const handleClearFilters = () => {
     setSelectedBloodGroup('');
     setSelectedLocation('');
@@ -62,15 +65,25 @@ const DonorListPage = () => {
   //   }
   // };
 
+>>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
   const handleRequest = (donorName) => {
     alert(`Request sent to ${donorName}`);
   };
 
   // Filter donors based on search criteria
+<<<<<<< HEAD
+  const filteredDonors = donors.filter(donor => {
+    const bloodTypeMatch = selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true;
+    const locationMatch = selectedLocation ? 
+      donor.address?.toLowerCase().includes(selectedLocation.toLowerCase()) : true;
+    return bloodTypeMatch && locationMatch;
+  });
+=======
   const filteredDonors = donors.filter(donor => 
     (selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true) &&
     (selectedLocation ? donor.address && donor.address.toLowerCase().includes(selectedLocation.toLowerCase()) : true)
   );
+>>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
 
   // Close dropdowns when clicking outside
   const handleOutsideClick = (e) => {
@@ -99,10 +112,19 @@ const DonorListPage = () => {
               <div className="dropdown-container">
                 <div 
                   className={`custom-dropdown ${isBloodGroupOpen ? 'open' : ''}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsBloodGroupOpen(!isBloodGroupOpen);
                     setIsLocationOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsBloodGroupOpen(!isBloodGroupOpen);
+                      setIsLocationOpen(false);
+                    }
                   }}
                 >
                   <span className="dropdown-selected">
@@ -120,9 +142,17 @@ const DonorListPage = () => {
                       <div
                         key={bloodGroup}
                         className="dropdown-option"
+                        role="option"
+                        tabIndex={0}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleBloodGroupSelect(bloodGroup);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleBloodGroupSelect(bloodGroup);
+                          }
                         }}
                       >
                         {bloodGroup}
@@ -138,10 +168,19 @@ const DonorListPage = () => {
               <div className="dropdown-container">
                 <div 
                   className={`custom-dropdown ${isLocationOpen ? 'open' : ''}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsLocationOpen(!isLocationOpen);
                     setIsBloodGroupOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsLocationOpen(!isLocationOpen);
+                      setIsBloodGroupOpen(false);
+                    }
                   }}
                 >
                   <span className="dropdown-selected">
@@ -159,9 +198,17 @@ const DonorListPage = () => {
                       <div
                         key={location}
                         className="dropdown-option"
+                        role="option"
+                        tabIndex={0}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleLocationSelect(location);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleLocationSelect(location);
+                          }
                         }}
                       >
                         {location}
@@ -184,12 +231,23 @@ const DonorListPage = () => {
       {/* Donor List Section */}
       <div className="donor-list-section">
         <div className="donor-list-container">
+          {(selectedBloodGroup || selectedLocation) && (
+            <div style={{ marginBottom: '20px', padding: '10px', background: '#f8f9fa', borderRadius: '4px' }}>
+              <strong>Active Filters:</strong>
+              {selectedBloodGroup && <span style={{ marginLeft: '10px', background: '#e3f2fd', padding: '4px 8px', borderRadius: '4px' }}>Blood Type: {selectedBloodGroup}</span>}
+              {selectedLocation && <span style={{ marginLeft: '10px', background: '#e8f5e8', padding: '4px 8px', borderRadius: '4px' }}>Location: {selectedLocation}</span>}
+            </div>
+          )}
           {loading ? (
             <div className="donors-grid"><h3>Loading donors...</h3></div>
           ) : error ? (
             <div className="donors-grid"><h3>{error}</h3></div>
           ) : (
-            <div className="donors-grid">
+            <>
+              <div style={{ marginBottom: '15px', fontWeight: 'bold', color: '#666' }}>
+                Showing {filteredDonors.length} of {donors.length} donors
+              </div>
+              <div className="donors-grid">
               {filteredDonors.length === 0 ? (
                 <div className="donors-grid"><h4>No donors found.</h4></div>
               ) : (
@@ -247,14 +305,15 @@ const DonorListPage = () => {
 
                     <button 
                       className="request-btn"
-                      onClick={() => handleRequest(donor.name)}
+                      onClick={() => handleRequest(donor.fullName)}
                     >
                       Request
                     </button>
                   </div>
                 ))
               )}
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>
