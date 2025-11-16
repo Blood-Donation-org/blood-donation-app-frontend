@@ -36,7 +36,7 @@ const DonorListPage = () => {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-  const locations = ['Colombo', 'Kandy', 'Galle', 'Jaffna', 'Negombo', 'Matara', 'Kalutara', 'Gampaha', 'Kurunegala', 'Anuradhapura'];
+  const locations = ['Colombo', 'Kandy', 'Galle', 'Jaffna', 'Negombo', 'Matara', 'Kalutara', 'Gampaha', 'Kurunegala', 'Anuradhapura','horana'];
 
   const handleBloodGroupSelect = (bloodGroup) => {
     setSelectedBloodGroup(bloodGroup);
@@ -45,6 +45,13 @@ const DonorListPage = () => {
 
   const handleLocationSelect = (location) => {
     setSelectedLocation(location);
+    setIsLocationOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedBloodGroup('');
+    setSelectedLocation('');
+    setIsBloodGroupOpen(false);
     setIsLocationOpen(false);
   };
 
@@ -61,8 +68,8 @@ const DonorListPage = () => {
 
   // Filter donors based on search criteria
   const filteredDonors = donors.filter(donor => 
-    (selectedBloodGroup ? donor.bloodGroup === selectedBloodGroup : true) &&
-    (selectedLocation ? donor.address === selectedLocation : true)
+    (selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true) &&
+    (selectedLocation ? donor.address && donor.address.toLowerCase().includes(selectedLocation.toLowerCase()) : true)
   );
 
   // Close dropdowns when clicking outside
@@ -165,11 +172,11 @@ const DonorListPage = () => {
               </div>
             </div>
 
-            {/* <div className="search-button-container">
-              <button className="search-btn" onClick={handleSearch}>
-                SEARCH
+            <div className="search-button-container">
+              <button className="clear-btn" onClick={handleClearFilters}>
+                CLEAR FILTERS
               </button>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
