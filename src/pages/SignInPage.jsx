@@ -174,7 +174,7 @@ const SignInPage = () => {
               </form>
 
               <div className="signin-footer">
-                <p className="signup-prompt">
+                <p className="signup-prompt" >
                   Don't have an account?
                   <Link to="/register" className="signup-link">
                     {" "}

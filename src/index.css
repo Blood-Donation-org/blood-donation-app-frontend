@@ -4,7 +4,7 @@
 @media (prefers-color-scheme: dark) {
   html, body, #root {
     background: #f8f9fa !important;
-    color: #222 !important;
+    /* color: #222 !important; */
     filter: none !important;
     -webkit-filter: none !important;
   }
@@ -12,8 +12,8 @@
 
 html, body {
   background: #f8f9fa !important;
-  color: #222 !important;
-  -webkit-text-fill-color: #222 !important;
+  /* color: #222 !important; */
+  /* -webkit-text-fill-color: #222 !important; */
   /* Prevent browser/OS dark mode auto-invert */
   forced-color-adjust: none !important;
   color-scheme: light !important;
@@ -25,7 +25,7 @@ html, body {
   font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #213547;
+  /* color: #213547; */
   background-color: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -49,14 +49,14 @@ body {
   padding: 0;
   min-height: 100vh;
   background-color: #ffffff;
-  color: #213547;
+  /* color: #213547; */
 }
 
 #root {
   width: 100%;
   min-height: 100vh;
   background-color: #ffffff;
-  color: #213547;
+  /* color: #213547; */
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -98,7 +98,7 @@ input:not([class]):-webkit-autofill,
 input:not([class]):-webkit-autofill:hover,
 input:not([class]):-webkit-autofill:focus {
   -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #213547 !important;
+  /* -webkit-text-fill-color: #213547 !important; */
   background-color: #ffffff !important;
-  color: #213547 !important;
+  /* color: #213547 !important; */
 }

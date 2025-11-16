@@ -37,7 +37,7 @@ const DonorListPage = () => {
   const [isLocationOpen, setIsLocationOpen] = useState(false);
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
-  const locations = ['Colombo', 'Kandy', 'Galle', 'Jaffna', 'Negombo', 'Matara', 'Kalutara', 'Gampaha', 'Kurunegala', 'Anuradhapura'];
+  const locations = ['Colombo', 'Kandy', 'Galle', 'Jaffna', 'Negombo', 'Matara', 'Kalutara', 'Gampaha', 'Kurunegala', 'Anuradhapura','horana'];
 
   const handleBloodGroupSelect = (bloodGroup) => {
     setSelectedBloodGroup(bloodGroup);
@@ -49,17 +49,41 @@ const DonorListPage = () => {
     setIsLocationOpen(false);
   };
 
+<<<<<<< HEAD
+=======
+  const handleClearFilters = () => {
+    setSelectedBloodGroup('');
+    setSelectedLocation('');
+    setIsBloodGroupOpen(false);
+    setIsLocationOpen(false);
+  };
+
+  // const handleSearch = () => {
+  //   if (!selectedBloodGroup || !selectedLocation) {
+  //     alert('Please select both blood group and location');
+  //     return;
+  //   }
+  // };
+
+>>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
   const handleRequest = (donorName) => {
     alert(`Request sent to ${donorName}`);
   };
 
   // Filter donors based on search criteria
+<<<<<<< HEAD
   const filteredDonors = donors.filter(donor => {
     const bloodTypeMatch = selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true;
     const locationMatch = selectedLocation ? 
       donor.address?.toLowerCase().includes(selectedLocation.toLowerCase()) : true;
     return bloodTypeMatch && locationMatch;
   });
+=======
+  const filteredDonors = donors.filter(donor => 
+    (selectedBloodGroup ? donor.bloodType === selectedBloodGroup : true) &&
+    (selectedLocation ? donor.address && donor.address.toLowerCase().includes(selectedLocation.toLowerCase()) : true)
+  );
+>>>>>>> 5e55f6a25eaee55b74546b7aa03473b065647355
 
   // Close dropdowns when clicking outside
   const handleOutsideClick = (e) => {
@@ -195,11 +219,11 @@ const DonorListPage = () => {
               </div>
             </div>
 
-            {/* <div className="search-button-container">
-              <button className="search-btn" onClick={handleSearch}>
-                SEARCH
+            <div className="search-button-container">
+              <button className="clear-btn" onClick={handleClearFilters}>
+                CLEAR FILTERS
               </button>
-            </div> */}
+            </div>
           </div>
         </div>
       </div>
