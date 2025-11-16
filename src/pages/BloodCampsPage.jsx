@@ -153,13 +153,6 @@ const BloodCampsPage = () => {
           >
             Add Camp
           </button>
-          <button 
-            className="refresh-btn"
-            onClick={handleRefreshCamps}
-            disabled={loading}
-          >
-            {loading ? 'Refreshing...' : 'Refresh'}
-          </button>
         </div>
       )}
 

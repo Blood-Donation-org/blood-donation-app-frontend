@@ -31,7 +31,7 @@ const DoctorBloodRequest = () => {
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
-    if (user && user.user.role === 'doctor') {
+    if (user && user.role === 'doctor') {
       setUserData(user);
     } else {
       navigate('/');
@@ -150,8 +150,8 @@ const DoctorBloodRequest = () => {
       form.append('status', 'pending');
       form.append('confirmationStatus', 'unconfirmed');
       // Add logged-in user ID
-      if (userData && userData.user && userData.user.id) {
-        form.append('user', userData.user.id);
+      if (userData && userData.id) {
+        form.append('user', userData.id);
       }
       // Use the actual file object from state
       if (dtFormFile) {
