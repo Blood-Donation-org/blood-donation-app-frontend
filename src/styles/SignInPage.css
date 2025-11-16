@@ -199,7 +199,7 @@ input::-webkit-textfield-decoration-container {
 
 .signin-button {
   background: #CD2F2F;
-  color: #fff;
+  color: #fff !important;
   border: none;
   padding: 10px 15px;
   border-radius: 8px;
