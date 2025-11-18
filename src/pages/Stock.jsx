@@ -10,7 +10,11 @@ const Stock = () => {
   const [bloodStocks, setBloodStocks] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResult, setSearchResult] = useState(null);
+  const [searchPacketId, setSearchPacketId] = useState('');
 
   // Form states for issuing blood
   const [issueForm, setIssueForm] = useState({
@@ -48,6 +52,42 @@ const Stock = () => {
 
   const handleAddBlood = () => {
     setShowAddModal(true);
+  };
+
+  const handleSearchPacket = () => {
+    setShowSearchModal(true);
+    setSearchResult(null);
+    setSearchPacketId('');
+  };
+
+  const searchBloodPacket = async (e) => {
+    e.preventDefault();
+    if (!searchPacketId.trim()) {
+      alert('Please enter a Packet ID to search');
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const response = await axios.get(`http://localhost:5000/api/v1/blood-inventory/packet/${searchPacketId}`);
+      
+      if (response.data) {
+        setSearchResult(response.data);
+      } else {
+        setSearchResult(null);
+        alert('No blood packet found with this ID');
+      }
+    } catch (error) {
+      console.error('Error searching blood packet:', error);
+      setSearchResult(null);
+      if (error.response?.status === 404) {
+        alert('Blood packet not found with ID: ' + searchPacketId);
+      } else {
+        alert('Error searching for blood packet. Please try again.');
+      }
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const handleAddBloodSuccess = async () => {
@@ -137,13 +177,23 @@ const Stock = () => {
               <h1 className="stock-title">Blood Inventory</h1>
               <p className="stock-subtitle">Available blood stocks</p>
             </div>
-            <button 
-              className="add-blood-btn" 
-              onClick={handleAddBlood}
-              disabled={isLoading}
-            >
-              + Add Blood Packet
-            </button>
+            <div className="header-actions">
+              <button 
+                className="add-blood-btn" 
+                onClick={handleAddBlood}
+                disabled={isLoading}
+              >
+                + Add Blood Packet
+              </button>
+              <button 
+                className="search-packet-btn" 
+                onClick={handleSearchPacket}
+                disabled={isLoading}
+              >
+                🔍 Search Packet
+              </button>
+              
+            </div>
           </div>
           
           {isLoading ? (
@@ -291,6 +341,95 @@ const Stock = () => {
                   disabled={isLoading}
                 >
                   {isLoading ? 'Issuing...' : 'Issue Blood'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Search Blood Packet Modal */}
+      {showSearchModal && (
+        <div className="modal-overlay" onClick={() => !isSearching && setShowSearchModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Search Blood Packet</h2>
+              <button 
+                className="close-btn" 
+                onClick={() => setShowSearchModal(false)}
+                disabled={isSearching}
+              >
+                ×
+              </button>
+            </div>
+            
+            <form className="modal-form" onSubmit={searchBloodPacket}>
+              <div className="form-group">
+                <label htmlFor="searchPacketId">Enter Blood Packet ID</label>
+                <input 
+                  id="searchPacketId"
+                  type="text" 
+                  value={searchPacketId}
+                  onChange={(e) => setSearchPacketId(e.target.value)}
+                  placeholder="e.g., BP001, PKT123"
+                  required
+                  disabled={isSearching}
+                  style={{
+                    padding: '12px',
+                    fontSize: '16px',
+                    border: '2px solid #e9ecef',
+                    borderRadius: '8px',
+                    marginBottom: '20px'
+                  }}
+                />
+              </div>
+
+              {searchResult && (
+                <div className="search-result" style={{
+                  background: '#f8f9fa',
+                  border: '2px solid #28a745',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  marginBottom: '20px'
+                }}>
+                  <h3 style={{ margin: '0 0 15px 0', color: '#28a745' }}>
+                    📦 Packet Found: {searchResult.packetId}
+                  </h3>
+                  <div className="result-grid" style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '15px'
+                  }}>
+                    <div><strong>Blood Type:</strong> {searchResult.bloodType}</div>
+                    <div><strong>Units:</strong> {searchResult.units}</div>
+                    <div><strong>Donor Name:</strong> {searchResult.donerName}</div>
+                    <div><strong>Donor Phone:</strong> {searchResult.donerphone}</div>
+                    <div><strong>Donor Age:</strong> {searchResult.donerAge}</div>
+                    <div><strong>Donation Date:</strong> {new Date(searchResult.donationDate).toLocaleDateString()}</div>
+                  </div>
+                  {searchResult.Notes && (
+                    <div style={{ marginTop: '15px' }}>
+                      <strong>Notes:</strong> {searchResult.Notes}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button 
+                  type="button" 
+                  onClick={() => setShowSearchModal(false)} 
+                  className="cancel-btn"
+                  disabled={isSearching}
+                >
+                  Close
+                </button>
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={isSearching}
+                >
+                  {isSearching ? 'Searching...' : '🔍 Search'}
                 </button>
               </div>
             </form>
