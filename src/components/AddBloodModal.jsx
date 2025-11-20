@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { useState } from 'react';
+import '../styles/AddBloodModal.css';
 
 const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
   const [formData, setFormData] = useState({
+    packetId: '',
     bloodType: 'A+',
     units: 1,
     donorName: '',
@@ -13,8 +16,31 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
     notes: ''
   });
 
+  const validateSriLankanPhone = (phone) => {
+    // Remove any spaces or dashes
+    const cleanPhone = phone.replace(/[\s-]/g, '');
+    
+    // Sri Lankan phone numbers: 10 digits starting with 0
+    const sriLankanPhoneRegex = /^0\d{9}$/;
+    
+    return sriLankanPhoneRegex.test(cleanPhone);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'donorPhone') {
+      // Clear phone error when user starts typing
+      if (phoneError) setPhoneError('');
+      
+      // Validate phone number
+      if (value && !validateSriLankanPhone(value)) {
+        setPhoneError('Phone number must be 10 digits starting with 0 (e.g., 0771234567)');
+      } else {
+        setPhoneError('');
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -23,6 +49,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
 
   const resetForm = () => {
     setFormData({
+      packetId: '',
       bloodType: 'A+',
       units: 1,
       donorName: '',
@@ -31,19 +58,26 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
       donationDate: new Date().toISOString().split('T')[0],
       notes: ''
     });
+    setPhoneError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.donorName || !formData.donorPhone || !formData.donorAge) {
-      alert('Please fill in all donor details');
+    if (!formData.packetId || !formData.donorName || !formData.donorPhone || !formData.donorAge) {
+      alert('Please fill in all required fields including Packet ID');
+      return;
+    }
+
+    if (!validateSriLankanPhone(formData.donorPhone)) {
+      alert('Please enter a valid Sri Lankan phone number (10 digits starting with 0)');
       return;
     }
 
     try {
       setIsLoading(true);
       const response = await axios.post('http://localhost:5000/api/v1/blood-inventory/create', {
+        packetId: formData.packetId,
         bloodType: formData.bloodType,
         units: parseInt(formData.units),
         donerName: formData.donorName,
@@ -58,20 +92,36 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
         const submittedBloodType = formData.bloodType;
         const bloodPacketId = response.data.bloodInventory?.bloodPacketId;
         
+<<<<<<< HEAD
         // Show success message with packet ID
         alert(
           `Successfully added ${submittedUnits} unit(s) of ${submittedBloodType} blood to inventory!\n\n` +
           `Blood Packet ID: ${bloodPacketId}\n\n` +
           `Please save this ID for future reference.`
         );
-        
-        // Reset form and close modal
+=======
+        // Reset form immediately after successful response
         resetForm();
+        
+        // Show success message
+        alert(`Successfully added ${submittedUnits} unit(s) of ${submittedBloodType} blood to inventory`);
+>>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
+        
+        // Close modal
         onClose();
         
-        // Notify parent to refresh data after modal is closed
+        // Notify parent to refresh data after modal is closed with the added data
         if (onSuccess) {
-          onSuccess();
+          onSuccess({
+            packetId: formData.packetId,
+            bloodType: submittedBloodType,
+            units: submittedUnits,
+            donerName: formData.donorName,
+            donerphone: formData.donorPhone,
+            donerAge: formData.donorAge,
+            donationDate: formData.donationDate,
+            Notes: formData.notes
+          });
         }
       } else {
         alert(response.data.message || 'Failed to add blood inventory');
@@ -113,6 +163,19 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
+              <label htmlFor="packetId">Blood Packet ID</label>
+              <input 
+                id="packetId"
+                name="packetId"
+                type="text" 
+                value={formData.packetId}
+                onChange={handleChange}
+                placeholder="e.g., BP001, PKT123"
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <div className="form-group">
               <label htmlFor="bloodType">Blood Type</label>
               <select 
                 id="bloodType"
@@ -132,6 +195,9 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 <option value="AB-">AB-</option>
               </select>
             </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="units">Units</label>
               <input 
@@ -146,9 +212,6 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 disabled={isLoading}
               />
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="donorName">Donor Name</label>
               <input 
@@ -161,6 +224,9 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 disabled={isLoading}
               />
             </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="donorPhone">Donor Phone</label>
               <input 
@@ -169,13 +235,27 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 type="tel" 
                 value={formData.donorPhone}
                 onChange={handleChange}
+                placeholder="0771234567"
+                pattern="0\d{9}"
+                maxLength="10"
                 required
                 disabled={isLoading}
+                style={{
+                  borderColor: phoneError ? '#ff4444' : '',
+                  backgroundColor: phoneError ? '#fff5f5' : ''
+                }}
               />
+              {phoneError && (
+                <span style={{ 
+                  color: '#ff4444', 
+                  fontSize: '12px', 
+                  marginTop: '4px',
+                  display: 'block'
+                }}>
+                  {phoneError}
+                </span>
+              )}
             </div>
-          </div>
-
-          <div className="form-row">
             <div className="form-group">
               <label htmlFor="donorAge">Donor Age</label>
               <input 
@@ -190,6 +270,9 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 disabled={isLoading}
               />
             </div>
+          </div>
+
+          <div className="form-row">
             <div className="form-group">
               <label htmlFor="donationDate">Donation Date</label>
               <input 
@@ -201,6 +284,9 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
                 required
                 disabled={isLoading}
               />
+            </div>
+            <div className="form-group">
+              {/* Empty div for layout balance */}
             </div>
           </div>
 
