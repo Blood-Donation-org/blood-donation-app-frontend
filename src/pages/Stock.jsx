@@ -12,15 +12,9 @@ const Stock = () => {
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-<<<<<<< HEAD
-  const [searchPacketId, setSearchPacketId] = useState('');
-  const [searchResult, setSearchResult] = useState(null);
-  const [searchError, setSearchError] = useState('');
-=======
   const [isSearching, setIsSearching] = useState(false);
   const [searchResult, setSearchResult] = useState(null);
   const [searchPacketId, setSearchPacketId] = useState('');
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
 
   // Form states for issuing blood
   const [issueForm, setIssueForm] = useState({
@@ -46,32 +40,6 @@ const Stock = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const searchBloodPacket = async () => {
-    if (!searchPacketId.trim()) {
-      setSearchError('Please enter a Blood Packet ID');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setSearchError('');
-       const response = await axios.get(`http://localhost:5000/api/v1/blood-inventory/search/${searchPacketId.trim()}`);
-      setSearchResult(response.data.bloodInventory);
-    } catch (err) {
-      console.error('Error searching blood packet:', err);
-      setSearchError(err.response?.data?.message || 'Blood packet not found');
-      setSearchResult(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const resetSearch = () => {
-    setSearchPacketId('');
-    setSearchResult(null);
-    setSearchError('');
   };
 
   useEffect(() => {
@@ -215,31 +183,12 @@ const Stock = () => {
             </div>
             <div className="header-actions">
               <button 
-<<<<<<< HEAD
-                className="view-packets-btn" 
-                onClick={() => navigate('/blood-packets')}
-                disabled={isLoading}
-              >
-                📋 View All Packets
-              </button>
-              <button 
-                className="search-blood-btn" 
-                onClick={handleSearchBlood}
-                disabled={isLoading}
-              >
-                🔍 Search by Packet ID
-              </button>
-              <button 
-=======
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
                 className="add-blood-btn" 
                 onClick={handleAddBlood}
                 disabled={isLoading}
               >
                 + Add Blood Packet
               </button>
-<<<<<<< HEAD
-=======
               <button 
                 className="search-packet-btn" 
                 onClick={handleSearchPacket}
@@ -248,7 +197,6 @@ const Stock = () => {
                 🔍 Search Packet
               </button>
               
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
             </div>
           </div>
           
@@ -405,138 +353,21 @@ const Stock = () => {
         </div>
       )}
 
-<<<<<<< HEAD
-      {/* Search Blood Modal */}
-      {showSearchModal && (
-        <div className="modal-overlay" onClick={() => !isLoading && setShowSearchModal(false)}>
-          <div className="modal-content search-modal" onClick={(e) => e.stopPropagation()}>
-=======
       {/* Search Blood Packet Modal */}
       {showSearchModal && (
         <div className="modal-overlay" onClick={() => !isSearching && setShowSearchModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
             <div className="modal-header">
               <h2>Search Blood Packet</h2>
               <button 
                 className="close-btn" 
-<<<<<<< HEAD
-                onClick={() => {
-                  setShowSearchModal(false);
-                  resetSearch();
-                }}
-                disabled={isLoading}
-=======
                 onClick={() => setShowSearchModal(false)}
                 disabled={isSearching}
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
               >
                 ×
               </button>
             </div>
             
-<<<<<<< HEAD
-            <div className="search-form">
-              <div className="form-group">
-                <label>Blood Packet ID</label>
-                <div className="search-input-container">
-                  <input 
-                    type="text" 
-                    value={searchPacketId}
-                    onChange={(e) => setSearchPacketId(e.target.value)}
-                    placeholder="e.g., BP12345678901"
-                    disabled={isLoading}
-                    onKeyPress={(e) => e.key === 'Enter' && searchBloodPacket()}
-                  />
-                  <button 
-                    className="search-btn"
-                    onClick={searchBloodPacket}
-                    disabled={isLoading || !searchPacketId.trim()}
-                  >
-                    {isLoading ? 'Searching...' : 'Search'}
-                  </button>
-                </div>
-              </div>
-
-              {searchError && (
-                <div className="search-error">
-                  ⚠️ {searchError}
-                </div>
-              )}
-
-              {searchResult && (
-                <div className="search-result">
-                  <h3>✅ Blood Packet Found</h3>
-                  <div className="result-card">
-                    <div className="result-header">
-                      <span className="packet-id">ID: {searchResult.bloodPacketId}</span>
-                      <span className={`blood-type-badge ${searchResult.bloodType.toLowerCase()}`}>
-                        {searchResult.bloodType}
-                      </span>
-                    </div>
-                    <div className="result-details">
-                      <div className="detail-row">
-                        <span className="label">Units:</span>
-                        <span className="value">{searchResult.units}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Donor:</span>
-                        <span className="value">{searchResult.donerName}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Phone:</span>
-                        <span className="value">{searchResult.donerphone}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Age:</span>
-                        <span className="value">{searchResult.donerAge} years</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Donation Date:</span>
-                        <span className="value">{searchResult.donationDate}</span>
-                      </div>
-                      <div className="detail-row">
-                        <span className="label">Added:</span>
-                        <span className="value">{new Date(searchResult.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      {searchResult.Notes && (
-                        <div className="detail-row">
-                          <span className="label">Notes:</span>
-                          <span className="value">{searchResult.Notes}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div className="result-actions">
-                      <button 
-                        className="issue-blood-btn"
-                        onClick={() => {
-                          handleIssueBlood(searchResult.bloodType);
-                          setShowSearchModal(false);
-                          resetSearch();
-                        }}
-                        disabled={parseInt(searchResult.units) === 0}
-                      >
-                        Issue This Blood
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
-                onClick={() => {
-                  setShowSearchModal(false);
-                  resetSearch();
-                }}
-                disabled={isLoading}
-              >
-                Close
-              </button>
-            </div>
-=======
             <form className="modal-form" onSubmit={searchBloodPacket}>
               <div className="form-group">
                 <label htmlFor="searchPacketId">Enter Blood Packet ID</label>
@@ -607,7 +438,6 @@ const Stock = () => {
                 </button>
               </div>
             </form>
->>>>>>> 6b459229c25022d374b0ce1f9b013695a15b980e
           </div>
         </div>
       )}
