@@ -164,9 +164,16 @@ const RequestReport = () => {
                                     : r
                                 )
                               );
+                              
+                              // Trigger notification refresh for doctor
+                              if (globalThis.refreshNotifications) {
+                                globalThis.refreshNotifications();
+                              }
+                              
+                              alert('Status updated successfully');
                             } catch (err) {
                               console.error('Error updating status:', err);
-                              // Optionally show error
+                              alert('Failed to update status');
                             }
                           }}
                           className="status-dropdown"

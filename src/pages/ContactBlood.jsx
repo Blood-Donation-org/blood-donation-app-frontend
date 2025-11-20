@@ -166,6 +166,12 @@ const DoctorBloodRequest = () => {
       );
 
       alert(response.data.message || 'Blood request submitted successfully!');
+      
+      // Trigger notification refresh for admin users
+      if (globalThis.refreshNotifications) {
+        globalThis.refreshNotifications();
+      }
+      
       // Reset form
       setFormData({
         patientName: '',

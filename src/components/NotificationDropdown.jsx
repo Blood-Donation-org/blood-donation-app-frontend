@@ -99,12 +99,27 @@ const NotificationDropdown = ({ userRole }) => {
       const userId = currentUser.id;
 
       try {
-        // Fetch notifications specific to the current user
-        const apiUrl = API_ENDPOINTS.NOTIFICATION.GET_BY_USER(userId);
+        let apiUrl;
+        let userNotifications = [];
         
-        const response = await axios.get(apiUrl);
-        
-        const userNotifications = response.data.notifications || [];
+        // For admin users, fetch all blood-request notifications
+        if (currentUser.role === 'admin') {
+          apiUrl = API_ENDPOINTS.NOTIFICATION.GET_BLOOD_REQUESTS; // Use new endpoint
+          const response = await axios.get(apiUrl);
+          userNotifications = response.data.notifications || [];
+          
+          console.log('Admin blood-request notifications count:', userNotifications.length);
+          console.log('Admin notification details:', userNotifications.map(n => ({
+            message: n.message,
+            type: n.type,
+            createdAt: n.createdAt
+          })));
+        } else {
+          // For other users, fetch their specific notifications
+          apiUrl = API_ENDPOINTS.NOTIFICATION.GET_BY_USER(userId);
+          const response = await axios.get(apiUrl);
+          userNotifications = response.data.notifications || [];
+        }
         
         setNotifications(userNotifications);
         const unread = userNotifications.filter(notif => notif.status !== 'read').length;
@@ -215,6 +230,11 @@ const NotificationDropdown = ({ userRole }) => {
       const request = notification.relatedRequest;
       if (!request) return null;
       
+      // Show only status change notifications for doctors
+      if (request.status !== 'approved' && request.status !== 'rejected' && request.status !== 'not_available') {
+        return null;
+      }
+      
       const getStatusMessage = (status) => {
         switch (status) {
           case 'approved': return 'Request Approved';
@@ -262,7 +282,9 @@ const NotificationDropdown = ({ userRole }) => {
             {notification.type === 'blood-request' ? '🩸' : '🔔'}
           </span>
           <span className="notification-card-title">
-            {notification.relatedRequest?.patientName || notification.user?.fullName || 'Unknown'}
+            {notification.message.includes('Dr.') 
+              ? notification.message.split(' for patient ')[0].replace('New blood request created by ', '') 
+              : notification.relatedRequest?.patientName || 'Unknown Patient'}
           </span>
           {notification.relatedRequest?.bloodType && (
             <span className={`notification-card-bloodtype bloodtype-${notification.relatedRequest.bloodType.replace('+','plus').replace('-','minus')}`}>{notification.relatedRequest.bloodType}</span>
@@ -295,10 +317,10 @@ const NotificationDropdown = ({ userRole }) => {
   // Show donation_reminder only for user role 'user', exclude for admin and doctor
   const getFilteredNotifications = () => {
     if (userRole === 'doctor') {
-      // For doctors, only show notifications about blood request status changes (approved/rejected)
+      // For doctors, show notifications about blood request status changes (approved/rejected/not_available)
       return notifications.filter(notification => {
         return notification.type === 'blood-request' && 
-               notification.relatedRequest && 
+               notification.relatedRequest &&
                (notification.relatedRequest.status === 'approved' || 
                 notification.relatedRequest.status === 'rejected' ||
                 notification.relatedRequest.status === 'not_available');
@@ -309,7 +331,12 @@ const NotificationDropdown = ({ userRole }) => {
       return notifications.filter(n => n.type === 'donation_reminder' || n.type === 'general' || n.type === 'blood-request');
     }
     
-    // For admin, show all notifications
+    // For admin, show all notifications, especially blood-request type
+    if (userRole === 'admin') {
+      return notifications.filter(n => n.type === 'blood-request' || n.type === 'general');
+    }
+    
+    // For other users, show all notifications
     return notifications;
   };
 
@@ -343,20 +370,26 @@ const NotificationDropdown = ({ userRole }) => {
                 <p>No notifications at the moment</p>
               </div>
             ) : (
-              getFilteredNotifications().map((notification) => (
+              getFilteredNotifications().map((notification) => {
+                const getNotificationClass = () => {
+                  if (userRole === 'admin') {
+                    return getUrgencyClass(notification.urgency);
+                  } else if (userRole === 'doctor') {
+                    return notification.type.replace('request_', '');
+                  } else {
+                    return 'donation-reminder';
+                  }
+                };
+                
+                return (
                 <div 
                   key={notification.id} 
-                  className={`notification-item ${
-                    userRole === 'admin' 
-                      ? getUrgencyClass(notification.urgency) 
-                      : userRole === 'doctor'
-                      ? notification.type.replace('request_', '')
-                      : 'donation-reminder'
-                  } ${!notification.isRead ? 'unread' : ''}`}
+                  className={`notification-item ${getNotificationClass()} ${notification.isRead ? '' : 'unread'}`}
                 >
                   {renderNotificationContent(notification)}
                 </div>
-              ))
+                );
+              })
             )}
           </div>
           {notifications.length > 0 && userRole === 'admin' && (
