@@ -56,9 +56,14 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
       if (response.status === 201) {
         const submittedUnits = formData.units;
         const submittedBloodType = formData.bloodType;
+        const bloodPacketId = response.data.bloodInventory?.bloodPacketId;
         
-        // Show success message first
-        alert(`Successfully added ${submittedUnits} unit(s) of ${submittedBloodType} blood to inventory`);
+        // Show success message with packet ID
+        alert(
+          `Successfully added ${submittedUnits} unit(s) of ${submittedBloodType} blood to inventory!\n\n` +
+          `Blood Packet ID: ${bloodPacketId}\n\n` +
+          `Please save this ID for future reference.`
+        );
         
         // Reset form and close modal
         resetForm();

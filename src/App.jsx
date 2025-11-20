@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AboutUs from './pages/AboutUsPage';
 import AddCampPage from './pages/AddCampPage';
 import BloodCampsPage from './pages/BloodCampsPage';
+import BloodPacketList from './pages/BloodPacketList';
 import ChangePassword from './pages/ChangePassword';
 import ContactBlood from './pages/ContactBlood';
 import DoctorManagement from './pages/DoctorManagement';
@@ -162,10 +163,26 @@ function App() {
             }
           />
           <Route
+            path="/stock"
+            element={
+              <ProtectedRoute>
+                <Stock />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/stocks"
             element={
               <ProtectedRoute>
                 <Stock />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/blood-packets"
+            element={
+              <ProtectedRoute>
+                <BloodPacketList />
               </ProtectedRoute>
             }
           />

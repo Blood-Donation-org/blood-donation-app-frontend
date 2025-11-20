@@ -19,10 +19,23 @@ const StockResult = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`http://localhost:5000/api/v1/blood-inventory/${inventoryId}`);
-        // Try both .bloodInventory and direct .data
-        const item = response.data.bloodInventory || response.data;
-        setStockInfo(item);
+        // Fetch stock summary and filter by blood type
+        const response = await axios.get('http://localhost:5000/api/v1/blood-inventory/summary/stock');
+        const stockSummary = response.data.stockSummary || [];
+        const item = stockSummary.find(stock => stock.bloodType === inventoryId);
+        
+        if (item) {
+          // Transform summary data to match expected format
+          setStockInfo({
+            bloodType: item.bloodType,
+            units: item.totalUnits,
+            totalPackets: item.totalPackets,
+            latestDonation: item.latestDonation
+          });
+        } else {
+          setError('Blood type not found.');
+          setStockInfo(null);
+        }
       } catch (err) {
         setError('Could not fetch blood inventory details.');
         setStockInfo(null);
@@ -34,7 +47,7 @@ const StockResult = () => {
   }, [inventoryId]);
 
   const handleGoBack = () => {
-    navigate('/stocks');
+    navigate('/stock');
   };
 
   const getStockStatus = (units) => {
@@ -124,6 +137,12 @@ const StockResult = () => {
               <div className="count-display">
                 <span className="count-number">{stockInfo.units}</span>
                 <span className="count-label">Units Available</span>
+                <div className="packet-info">
+                  <span className="packet-count">{stockInfo.totalPackets} Packets</span>
+                  {stockInfo.latestDonation && (
+                    <span className="latest-donation">Latest: {stockInfo.latestDonation}</span>
+                  )}
+                </div>
               </div>
             </div>
 
