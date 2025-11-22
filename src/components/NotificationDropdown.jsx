@@ -16,35 +16,37 @@ const doctorNotificationStyles = `
     font-weight: bold;
     padding: 8px 0;
     font-size: 14px;
+    color: #333 !important;
   }
   .status-approved {
-    color: #28a745;
+    color: #28a745 !important;
   }
   .status-rejected {
-    color: #dc3545;
+    color: #dc3545 !important;
   }
   .status-not-available {
-    color: #ffc107;
+    color: #ffc107 !important;
   }
   .request-details {
     display: flex;
     flex-direction: column;
     gap: 4px;
     font-size: 12px;
-    color: #666;
+    color: #666 !important;
     margin-top: 8px;
   }
   .request-details span {
     padding: 2px 0;
+    color: #666 !important;
   }
   .urgency-critical {
-    color: #dc3545;
+    color: #dc3545 !important;
   }
   .urgency-urgent {
-    color: #fd7e14;
+    color: #fd7e14 !important;
   }
   .urgency-normal {
-    color: #28a745;
+    color: #28a745 !important;
   }
 `;
 

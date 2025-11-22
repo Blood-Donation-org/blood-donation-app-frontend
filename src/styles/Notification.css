@@ -13,6 +13,12 @@
   z-index: 100;
 }
 
+/* Override global white text color from landing page */
+.notification-dropdown,
+.notification-dropdown * {
+  color: initial !important;
+}
+
 .notification-header {
   display: flex;
   align-items: center;
@@ -23,14 +29,14 @@
 .notification-header h3 {
   font-size: 1.08rem;
   font-weight: 700;
-  color: #c62828;
+  color: #c62828 !important;
   margin: 0;
   letter-spacing: 0.5px;
 }
 .clear-btn {
   background: none;
   border: none;
-  color: #888;
+  color: #888 !important;
   font-size: 0.95rem;
   cursor: pointer;
   transition: color 0.2s;
@@ -38,7 +44,7 @@
   border-radius: 4px;
 }
 .clear-btn:hover {
-  color: #c62828;
+  color: #c62828 !important;
   background: #fbe9e7;
 }
 
@@ -76,7 +82,7 @@
 .notification-card-icon {
   font-size: 1.25rem;
   margin-right: 0.18rem;
-  color: #d32f2f;
+  color: #d32f2f !important;
   background: #fff;
   border-radius: 50%;
   padding: 2px 6px;
@@ -84,13 +90,13 @@
 }
 .notification-card-title {
   font-weight: 600;
-  color: #222;
+  color: #222 !important;
   font-size: 1rem;
   margin-right: 0.2rem;
 }
 .notification-card-bloodtype {
   background: #d32f2f;
-  color: #fff;
+  color: #fff !important;
   border-radius: 4px;
   padding: 0 7px;
   font-size: 0.93rem;
@@ -101,15 +107,18 @@
 .notification-card-time {
   margin-left: auto;
   font-size: 0.82rem;
-  color: #888;
+  color: #888 !important;
   font-weight: 500;
 }
 .notification-card-body {
   font-size: 0.97rem;
-  color: #444;
+  color: #444 !important;
   margin-left: 1.6rem;
   margin-bottom: 2px;
   font-weight: 500;
+}
+.notification-card-message {
+  color: #444 !important;
 }
 .notification-card-details {
   display: flex;
@@ -120,47 +129,50 @@
   flex-wrap: wrap;
 }
 .notification-card-detail {
-  color: #555;
+  color: #555 !important;
   background: #f3f3f3;
   border-radius: 4px;
   padding: 2px 7px;
   font-weight: 500;
 }
 .status-pending {
-  color: #fbc02d;
+  color: #fbc02d !important;
   background: #fffde7;
   font-weight: 600;
 }
 .status-approved {
-  color: #388e3c;
+  color: #388e3c !important;
   background: #e8f5e9;
   font-weight: 600;
 }
 .status-not_available {
-  color: #d32f2f;
+  color: #d32f2f !important;
   background: #ffebee;
   font-weight: 600;
 }
 .confirm-unconfirmed {
-  color: #fbc02d;
+  color: #fbc02d !important;
   background: #fffde7;
   font-weight: 600;
 }
 .confirm-confirmed {
-  color: #388e3c;
+  color: #388e3c !important;
   background: #e8f5e9;
   font-weight: 600;
 }
 .confirm-rejected {
-  color: #d32f2f;
+  color: #d32f2f !important;
   background: #ffebee;
   font-weight: 600;
 }
 .no-notifications {
   text-align: center;
-  color: #888;
+  color: #888 !important;
   padding: 1.2rem 0;
   font-size: 1rem;
+}
+.no-notifications p {
+  color: #888 !important;
 }
 .notification-footer {
   padding: 0.5rem 1.1rem 0.5rem 1.1rem;
@@ -169,7 +181,7 @@
 }
 .view-all-btn {
   background: #d32f2f;
-  color: #fff;
+  color: #fff !important;
   border-radius: 6px;
   padding: 0.32rem 1.05rem;
   font-size: 0.97rem;
