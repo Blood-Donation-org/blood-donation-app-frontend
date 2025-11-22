@@ -1,26 +1,15 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import '../styles/BloodPacketList.css';
 
 const BloodPacketList = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [bloodPackets, setBloodPackets] = useState([]);
   const [filteredPackets, setFilteredPackets] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterBloodType, setFilterBloodType] = useState('');
-  const [sortBy, setSortBy] = useState('newest');
-
-  useEffect(() => {
-    // Check if there's a blood type filter in URL params
-    const urlFilter = searchParams.get('filter');
-    if (urlFilter) {
-      setFilterBloodType(urlFilter);
-    }
-  }, [searchParams]);
 
   const fetchBloodPackets = async () => {
     try {
@@ -49,34 +38,14 @@ const BloodPacketList = () => {
         packet.donerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         packet.donerphone?.includes(searchQuery);
       
-      const matchesBloodType = filterBloodType === '' || packet.bloodType === filterBloodType;
-      
-      return matchesSearch && matchesBloodType;
+      return matchesSearch;
     });
 
-    // Sort packets
-    switch (sortBy) {
-      case 'newest':
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        break;
-      case 'oldest':
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        break;
-      case 'bloodType':
-        filtered.sort((a, b) => a.bloodType.localeCompare(b.bloodType));
-        break;
-      case 'units':
-        filtered.sort((a, b) => b.units - a.units);
-        break;
-      default:
-        break;
-    }
-
     setFilteredPackets(filtered);
-  }, [bloodPackets, searchQuery, filterBloodType, sortBy]);
+  }, [bloodPackets, searchQuery]);
 
   const handleDeletePacket = async (packetId, bloodPacketId) => {
-    if (!window.confirm(`Are you sure you want to delete blood packet ${bloodPacketId}?`)) {
+    if (!globalThis.confirm(`Are you sure you want to delete blood packet ${bloodPacketId}?`)) {
       return;
     }
 
@@ -94,7 +63,7 @@ const BloodPacketList = () => {
   };
 
   const getBloodTypeClass = (bloodType) => {
-    return `blood-type-${bloodType.toLowerCase().replace(/[+-]/g, '')}`;
+    return `blood-type-${bloodType.toLowerCase().replaceAll(/[+-]/g, '')}`;
   };
 
   const getStockStatusClass = (units) => {
@@ -103,8 +72,6 @@ const BloodPacketList = () => {
     if (units < 5) return 'medium-stock';
     return 'in-stock';
   };
-
-  const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
 
   return (
     <div className="blood-packet-list-page">
@@ -139,36 +106,6 @@ const BloodPacketList = () => {
                   className="search-input"
                 />
                 <span className="search-icon">🔍</span>
-              </div>
-            </div>
-
-            <div className="filter-controls">
-              <div className="filter-group">
-                <label>Blood Type:</label>
-                <select 
-                  value={filterBloodType} 
-                  onChange={(e) => setFilterBloodType(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="">All Types</option>
-                  {bloodTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="filter-group">
-                <label>Sort by:</label>
-                <select 
-                  value={sortBy} 
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="bloodType">Blood Type</option>
-                  <option value="units">Units (High to Low)</option>
-                </select>
               </div>
             </div>
           </div>

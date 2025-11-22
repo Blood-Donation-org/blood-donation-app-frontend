@@ -189,13 +189,13 @@ const Stock = () => {
               >
                 + Add Blood Packet
               </button>
-              <button 
+              {/* <button 
                 className="search-packet-btn" 
                 onClick={handleSearchPacket}
                 disabled={isLoading}
               >
                 🔍 Search Packet
-              </button>
+              </button> */}
               
             </div>
           </div>

@@ -6,7 +6,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [formData, setFormData] = useState({
-    packetId: '',
+    bloodPacketId: '',
     bloodType: 'A+',
     units: 1,
     donorName: '',
@@ -49,7 +49,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
 
   const resetForm = () => {
     setFormData({
-      packetId: '',
+       bloodPacketId: '',
       bloodType: 'A+',
       units: 1,
       donorName: '',
@@ -64,7 +64,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.packetId || !formData.donorName || !formData.donorPhone || !formData.donorAge) {
+    if (!formData.bloodPacketId || !formData.donorName || !formData.donorPhone || !formData.donorAge) {
       alert('Please fill in all required fields including Packet ID');
       return;
     }
@@ -77,7 +77,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
     try {
       setIsLoading(true);
       const response = await axios.post('http://localhost:5000/api/v1/blood-inventory/create', {
-        packetId: formData.packetId,
+        bloodPacketId: formData.bloodPacketId,
         bloodType: formData.bloodType,
         units: parseInt(formData.units),
         donerName: formData.donorName,
@@ -104,7 +104,7 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
         // Notify parent to refresh data after modal is closed with the added data
         if (onSuccess) {
           onSuccess({
-            packetId: formData.packetId,
+            bloodPacketId: formData.bloodPacketId,
             bloodType: submittedBloodType,
             units: submittedUnits,
             donerName: formData.donorName,
@@ -154,12 +154,12 @@ const AddBloodModal = ({ isOpen, onClose, onSuccess }) => {
         <form className="modal-form" onSubmit={handleSubmit}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="packetId">Blood Packet ID</label>
+              <label htmlFor="bloodPacketId">Blood Packet ID</label>
               <input 
-                id="packetId"
-                name="packetId"
+                id="bloodPacketId"
+                name="bloodPacketId"
                 type="text" 
-                value={formData.packetId}
+                value={formData.bloodPacketId}
                 onChange={handleChange}
                 placeholder="e.g., BP001, PKT123"
                 required
