@@ -135,7 +135,7 @@
 
 /* Special styling for phone input with validation */
 .form-group input[type="tel"] {
-  font-family: 'Courier New', monospace;
+  /* font-family: 'Courier New', monospace; */
   letter-spacing: 1px;
 }
 

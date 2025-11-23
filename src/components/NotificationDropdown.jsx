@@ -227,8 +227,26 @@ const NotificationDropdown = ({ userRole }) => {
 
   // Render notification from backend API
   const renderNotificationContent = (notification) => {
-    // For doctor: show only status update notifications
-    if (userRole === 'doctor') {
+    // Handle donation reminder notifications for users
+    if (notification.type === 'donation_reminder') {
+      return (
+        <div className="notification-card">
+          <div className="notification-card-header">
+            <span className="notification-card-icon">🩸</span>
+            <span className="notification-card-title">
+              {currentUser?.fullName || 'Donor'}
+            </span>
+            <span className="notification-card-time">{formatTimeAgo(notification.createdAt)}</span>
+          </div>
+          <div className="notification-card-body">
+            <span className="notification-card-message">{notification.message}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Handle doctor notifications
+    if (userRole === 'doctor' && notification.type === 'blood-request') {
       const request = notification.relatedRequest;
       if (!request) return null;
       
@@ -275,6 +293,7 @@ const NotificationDropdown = ({ userRole }) => {
         </div>
       );
     }
+
     // For admin: keep existing style
     // Modern card style notification
     return (
@@ -284,9 +303,11 @@ const NotificationDropdown = ({ userRole }) => {
             {notification.type === 'blood-request' ? '🩸' : '🔔'}
           </span>
           <span className="notification-card-title">
-            {notification.message.includes('Dr.') 
-              ? notification.message.split(' for patient ')[0].replace('New blood request created by ', '') 
-              : notification.relatedRequest?.patientName || 'Unknown Patient'}
+            {notification.type === 'blood-request' && notification.relatedRequest
+              ? `Patient: ${notification.relatedRequest.patientName}`
+              : notification.message.includes('Dr.') 
+                ? notification.message.split(' for patient ')[0].replace('New blood request created by ', '') 
+                : 'User'}
           </span>
           {notification.relatedRequest?.bloodType && (
             <span className={`notification-card-bloodtype bloodtype-${notification.relatedRequest.bloodType.replace('+','plus').replace('-','minus')}`}>{notification.relatedRequest.bloodType}</span>

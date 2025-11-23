@@ -209,7 +209,6 @@ const Stock = () => {
                   <div className="blood-info">
                     <div className="blood-type">{stock.bloodType}</div>
                     <div className="blood-count">{stock.totalUnits}</div>
-                    <div className="packet-count">{stock.totalPackets} packets</div>
                     <div className="stock-status">
                       {parseInt(stock.totalUnits) < 20 ? 'Low Stock' : 
                        parseInt(stock.totalUnits) < 50 ? 'Medium Stock' : 'In Stock'}
