@@ -110,8 +110,8 @@
   border: 2px solid #e9ecef;
   border-radius: 8px;
   font-size: 14px;
-  background: white;
-  color: #2c3e50;
+  background: white !important;
+  color: #2c3e50 !important;
   cursor: pointer;
   transition: all 0.3s ease;
 }

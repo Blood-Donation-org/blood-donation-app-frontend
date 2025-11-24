@@ -120,12 +120,8 @@ const DoctorBloodRequest = () => {
     }
     
 
-    // Check if DT form file is uploaded
-    if (!dtFormFile) {
-      alert('Please upload the DT form image');
-      return false;
-    }
-
+    // DT form file is now optional - no validation required
+    
     return true;
   };
 
@@ -213,7 +209,7 @@ const DoctorBloodRequest = () => {
             <div className="image-wrapper">
               <div className="request-info-card">
                 <h2>Blood Request</h2>
-                <p>Submit a blood request for your patient with all necessary details and DT form.</p>
+                <p>Submit a blood request for your patient with all necessary details. DT form upload is optional.</p>
                 <div className="info-stats">
                   <div className="stat-item">
                     <span className="stat-icon">🩸</span>
@@ -426,14 +422,14 @@ const DoctorBloodRequest = () => {
 
               {/* DT Form Upload Section */}
               <div className="form-section-group">
-                <h3 className="section-title">DT Form Upload</h3>
+                <h3 className="section-title">DT Form Upload <span style={{color: '#666', fontWeight: 'normal', fontSize: '14px'}}>(Optional)</span></h3>
                 
                 <div className="upload-section">
                   <div className="upload-area">
                     {!dtFormPreview ? (
                       <div className="upload-placeholder">
                         <div className="upload-icon">📄</div>
-                        <p className="upload-text">Upload DT Form Image</p>
+                        <p className="upload-text">Upload DT Form Image (Optional)</p>
                         <p className="upload-subtext">PNG, JPG, JPEG up to 5MB</p>
                         <input
                           type="file"

@@ -48,6 +48,35 @@ const doctorNotificationStyles = `
   .urgency-normal {
     color: #28a745 !important;
   }
+  /* Status indicators for consolidated admin notifications */
+  .status-received {
+    color: #28a745 !important;
+    background: #e8f5e9;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .status-issued {
+    color: #17a2b8 !important;
+    background: #e3f2fd;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .status-unavailable {
+    color: #dc3545 !important;
+    background: #ffebee;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .status-pending {
+    color: #fbc02d !important;
+    background: #fffde7;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
 `;
 
 // Inject styles
@@ -294,8 +323,68 @@ const NotificationDropdown = ({ userRole }) => {
       );
     }
 
-    // For admin: keep existing style
-    // Modern card style notification
+    // For admin: Enhanced notification showing current status
+    if (userRole === 'admin' && notification.type === 'blood-request' && notification.relatedRequest) {
+      const request = notification.relatedRequest;
+      
+      // Determine the current stage and message
+      const getCurrentStageInfo = () => {
+        if (request.confirmationStatus === 'confirmed') {
+          return {
+            message: 'Blood received by doctor',
+            stage: 'RECEIVED',
+            icon: '✅'
+          };
+        } else if (request.status === 'approved') {
+          return {
+            message: 'Blood issued - awaiting confirmation',
+            stage: 'ISSUED',
+            icon: '🩸'
+          };
+        } else if (request.status === 'not_available') {
+          return {
+            message: 'Blood not available',
+            stage: 'UNAVAILABLE',
+            icon: '❌'
+          };
+        } else {
+          return {
+            message: 'New blood request received',
+            stage: 'PENDING',
+            icon: '🩸'
+          };
+        }
+      };
+
+      const stageInfo = getCurrentStageInfo();
+
+      return (
+        <div className="notification-card">
+          <div className="notification-card-header">
+            <span className="notification-card-icon">{stageInfo.icon}</span>
+            <span className="notification-card-title">
+              Patient: {request.patientName}
+            </span>
+            <span className={`notification-card-bloodtype bloodtype-${request.bloodType.replace('+','plus').replace('-','minus')}`}>
+              {request.bloodType}
+            </span>
+            <span className="notification-card-time">{formatTimeAgo(notification.createdAt)}</span>
+          </div>
+          <div className="notification-card-body">
+            <span className="notification-card-message">{stageInfo.message}</span>
+          </div>
+          <div className="notification-card-details">
+            <span className="notification-card-detail"><strong>Units:</strong> {request.unitsRequired}</span>
+            <span className="notification-card-detail"><strong>Ward:</strong> {request.wardNumber}</span>
+            <span className={`notification-card-detail status-${stageInfo.stage.toLowerCase()}`}>
+              {stageInfo.stage}
+            </span>
+          </div>
+        </div>
+      );
+    }
+
+    // For admin: keep existing style for general notifications
     return (
       <div className="notification-card">
         <div className="notification-card-header">
@@ -353,9 +442,36 @@ const NotificationDropdown = ({ userRole }) => {
       return notifications.filter(n => n.type === 'donation_reminder' || n.type === 'general' || n.type === 'blood-request');
     }
     
-    // For admin, show all notifications, especially blood-request type
+    // For admin, consolidate notifications by request ID to show only the latest one per request
     if (userRole === 'admin') {
-      return notifications.filter(n => n.type === 'blood-request' || n.type === 'general');
+      const bloodRequestNotifications = notifications.filter(n => n.type === 'blood-request' || n.type === 'general');
+      
+      // Group notifications by request ID and keep only the latest one for each request
+      const consolidatedNotifications = [];
+      const requestMap = new Map();
+      
+      // Sort notifications by creation date (newest first)
+      const sortedNotifications = [...bloodRequestNotifications].sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      
+      sortedNotifications.forEach(notification => {
+        if (notification.type === 'blood-request' && notification.relatedRequest) {
+          const requestId = notification.relatedRequest.id || notification.relatedRequest._id;
+          
+          if (!requestMap.has(requestId)) {
+            // This is the latest notification for this request
+            requestMap.set(requestId, true);
+            consolidatedNotifications.push(notification);
+          }
+          // Skip older notifications for the same request
+        } else if (notification.type === 'general') {
+          // Keep general notifications as they are
+          consolidatedNotifications.push(notification);
+        }
+      });
+      
+      return consolidatedNotifications;
     }
     
     // For other users, show all notifications

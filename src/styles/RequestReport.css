@@ -108,6 +108,7 @@
 
 .requests-table th:nth-child(6),
 .requests-table td:nth-child(6) {
+  text-align: center;
   width: 16%;
 }
 

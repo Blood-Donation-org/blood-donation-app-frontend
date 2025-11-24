@@ -62,11 +62,11 @@ const RequestReport = () => {
     const statusConfig = {
       approved: {
         className: "status-available",
-        text: "Available",
+        text: "Issued",
       },
       not_available: {
         className: "status-not-available",
-        text: "Not Available",
+        text: "Not Issued",
       },
       pending: {
         className: "status-pending",
