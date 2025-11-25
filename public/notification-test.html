@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Push Notification Test - Blood Donation App</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px; 
+            background: #f5f5f5;
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button { 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .status { 
+            padding: 15px; 
+            margin: 15px 0; 
+            border-radius: 5px; 
+            border-left: 4px solid;
+        }
+        .success { background: #d4edda; border-color: #28a745; color: #155724; }
+        .error { background: #f8d7da; border-color: #dc3545; color: #721c24; }
+        .info { background: #d1ecf1; border-color: #007bff; color: #0c5460; }
+        .warning { background: #fff3cd; border-color: #ffc107; color: #856404; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Push Notification Testing</h1>
+        <p>Test push notification functionality for the Blood Donation App</p>
+        
+        <div id="status"></div>
+        
+        <h3>📱 Quick Tests</h3>
+        
+        <button onclick="checkNotificationSupport()">Check Support</button>
+        <button onclick="requestPermission()">Request Permission</button>
+        <button onclick="testBrowserNotification()">Test Browser Notification</button>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="testWindowsNotifications()">Test Windows Notifications</button>
+        <button onclick="sendTestPushNotification()">Send Test Push Notification</button>
+        <button onclick="registerAsAdminForNotifications()">Register as Admin for Push Notifications</button>
+        <button onclick="testAdminNotification()">Test Admin Notification System</button>
+        <button onclick="sendDirectPushTest()">Send Direct Push Test</button>
+        
+        <h3>🔧 Advanced Tests</h3>
+        
+        <button onclick="testFirebaseInit()">Test Firebase Init</button>
+        <button onclick="requestFCMToken()">Get FCM Token</button>
+        <button onclick="testAPIConnection()">Test API Connection</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getMessaging, getToken, isSupported } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDYoneYWVChCstCD6PMFjd5biJ8HJZh7Io",
+            authDomain: "blood-donation-fc136.firebaseapp.com",
+            projectId: "blood-donation-fc136",
+            storageBucket: "blood-donation-fc136.firebasestorage.app",
+            messagingSenderId: "439502128204",
+            appId: "1:439502128204:web:9dc74e77dabbc3d77220e9"
+        };
+
+        // Initialize Firebase
+        let app = null;
+        let messaging = null;
+
+        window.firebaseApp = null;
+        window.firebaseMessaging = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            window.firebaseApp = app;
+            console.log('✅ Firebase app initialized');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+        }
+
+        // Initialize messaging if supported
+        isSupported().then(supported => {
+            if (supported && app) {
+                messaging = getMessaging(app);
+                window.firebaseMessaging = messaging;
+                console.log('✅ Firebase messaging supported and initialized');
+                
+                // Handle foreground messages (when browser is open)
+                import('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js')
+                .then(({ onMessage }) => {
+                    onMessage(messaging, (payload) => {
+                        console.log('🔔 Foreground message received:', payload);
+                        
+                        // Show browser notification immediately
+                        if (Notification.permission === 'granted') {
+                            const notificationTitle = payload.notification?.title || payload.data?.title || 'Blood Donation Alert';
+                            const notificationOptions = {
+                                body: payload.notification?.body || payload.data?.body || 'You have a new notification',
+                                icon: '/favicon.ico',
+                                badge: '/favicon.ico',
+                                tag: 'blood-donation-foreground',
+                                requireInteraction: true,
+                                data: payload.data || {}
+                            };
+                            
+                            const notification = new Notification(notificationTitle, notificationOptions);
+                            
+                            notification.onclick = () => {
+                                console.log('Foreground notification clicked');
+                                window.focus();
+                                notification.close();
+                            };
+                            
+                            // Also show in the test results
+                            addResult('🔔 Foreground Push Notification Received', {
+                                'Title': notificationTitle,
+                                'Body': notificationOptions.body,
+                                'Data': payload.data || {},
+                                'Time': new Date().toLocaleTimeString()
+                            }, 'success');
+                        }
+                    });
+                });
+            } else {
+                console.log('❌ Firebase messaging not supported');
+            }
+        });
+
+        // Make functions globally available
+        window.getFirebaseToken = async (vapidKey) => {
+            if (!messaging) {
+                throw new Error('Firebase messaging not initialized');
+            }
+            
+            if (!vapidKey) {
+                throw new Error('VAPID key is required');
+            }
+            
+            try {
+                const token = await getToken(messaging, { vapidKey });
+                return token;
+            } catch (error) {
+                console.error('Error getting FCM token:', error);
+                throw error;
+            }
+        };
+    </script>
+
+    <script>
+        let statusDiv = document.getElementById('status');
+        let resultsDiv = document.getElementById('results');
+
+        function updateStatus(message, type = 'info') {
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function addResult(title, content, type = 'info') {
+            const resultHTML = `
+                <div class="status ${type}">
+                    <strong>${title}</strong><br>
+                    <pre>${typeof content === 'object' ? JSON.stringify(content, null, 2) : content}</pre>
+                </div>
+            `;
+            resultsDiv.innerHTML += resultHTML;
+        }
+
+        function checkNotificationSupport() {
+            updateStatus('Checking notification support...', 'info');
+            
+            const results = {
+                'Notification API': 'Notification' in window,
+                'Service Worker': 'serviceWorker' in navigator,
+                'Push Manager': 'PushManager' in window,
+                'Current Permission': Notification.permission || 'default'
+            };
+            
+            const supported = results['Notification API'] && results['Service Worker'];
+            
+            addResult('Browser Support Check', results, supported ? 'success' : 'error');
+            updateStatus(
+                supported ? 
+                '✅ Browser supports push notifications!' : 
+                '❌ Browser does not support push notifications', 
+                supported ? 'success' : 'error'
+            );
+        }
+
+        async function requestPermission() {
+            updateStatus('Requesting notification permission...', 'info');
+            
+            try {
+                if (!('Notification' in window)) {
+                    throw new Error('Browser does not support notifications');
+                }
+                
+                const permission = await Notification.requestPermission();
+                
+                const result = {
+                    'Permission Result': permission,
+                    'Timestamp': new Date().toISOString()
+                };
+                
+                addResult('Permission Request', result, permission === 'granted' ? 'success' : 'warning');
+                updateStatus(
+                    permission === 'granted' ? 
+                    '✅ Permission granted!' : 
+                    `⚠️ Permission ${permission}`, 
+                    permission === 'granted' ? 'success' : 'warning'
+                );
+            } catch (error) {
+                addResult('Permission Request Error', error.message, 'error');
+                updateStatus('❌ Permission request failed', 'error');
+            }
+        }
+
+        function testBrowserNotification() {
+            updateStatus('Testing browser notification...', 'info');
+            
+            if (Notification.permission === 'granted') {
+                try {
+                    const notification = new Notification('🧪 Test Notification', {
+                        body: 'Browser notifications are working! This means the basic notification system is functional.',
+                        icon: '/favicon.ico',
+                        badge: '/favicon.ico',
+                        tag: 'test-notification'
+                    });
+                    
+                    notification.onclick = () => {
+                        console.log('Notification clicked');
+                        notification.close();
+                    };
+                    
+                    setTimeout(() => {
+                        notification.close();
+                    }, 5000);
+                    
+                    addResult('Browser Notification Test', 'Notification displayed successfully', 'success');
+                    updateStatus('✅ Browser notification sent!', 'success');
+                } catch (error) {
+                    addResult('Browser Notification Error', error.message, 'error');
+                    updateStatus('❌ Failed to send notification', 'error');
+                }
+            } else {
+                updateStatus('❌ Permission not granted. Click "Request Permission" first.', 'warning');
+            }
+        }
+
+        async function checkServiceWorker() {
+            updateStatus('Checking service worker...', 'info');
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.getRegistration();
+                    
+                    if (registration) {
+                        const result = {
+                            'Status': 'Registered',
+                            'Scope': registration.scope,
+                            'Active': !!registration.active,
+                            'Installing': !!registration.installing,
+                            'Waiting': !!registration.waiting
+                        };
+                        
+                        addResult('Service Worker Status', result, 'success');
+                        updateStatus('✅ Service worker is registered', 'success');
+                    } else {
+                        // Try to register firebase messaging service worker
+                        try {
+                            const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+                            addResult('Service Worker Registration', {
+                                'Status': 'Newly registered',
+                                'Scope': registration.scope
+                            }, 'success');
+                            updateStatus('✅ Service worker registered successfully', 'success');
+                        } catch (regError) {
+                            addResult('Service Worker Registration Error', regError.message, 'error');
+                            updateStatus('❌ Failed to register service worker', 'error');
+                        }
+                    }
+                } else {
+                    addResult('Service Worker Support', 'Service workers not supported', 'error');
+                    updateStatus('❌ Service workers not supported', 'error');
+                }
+            } catch (error) {
+                addResult('Service Worker Check Error', error.message, 'error');
+                updateStatus('❌ Error checking service worker', 'error');
+            }
+        }
+
+        function testFirebaseInit() {
+            updateStatus('Testing Firebase initialization...', 'info');
+            
+            if (window.firebaseApp) {
+                const result = {
+                    'Firebase App': 'Initialized',
+                    'Messaging Support': !!window.firebaseMessaging,
+                    'Project ID': window.firebaseApp.options.projectId,
+                    'App ID': window.firebaseApp.options.appId
+                };
+                
+                addResult('Firebase Status', result, 'success');
+                updateStatus('✅ Firebase is properly initialized', 'success');
+            } else {
+                addResult('Firebase Status', 'Not initialized or failed to initialize', 'error');
+                updateStatus('❌ Firebase initialization failed', 'error');
+            }
+        }
+
+        async function requestFCMToken() {
+            updateStatus('Getting FCM token...', 'info');
+            
+            if (!window.firebaseMessaging) {
+                updateStatus('❌ Firebase messaging not available', 'error');
+                return;
+            }
+            
+            if (Notification.permission !== 'granted') {
+                updateStatus('❌ Notification permission required. Click "Request Permission" first.', 'warning');
+                return;
+            }
+            
+            try {
+                // Use the actual VAPID key from your firebaseService.js
+                const vapidKey = 'BA2J9Md2Vaxm1ibStzsDpN4ERhiFpjXy-bQxkkYx_SCTphkTZiPZdDY6NHmSh3HYLtf8CCepYqHf5SjnlrJ3KBs';
+                
+                addResult('FCM Token Request', 'Requesting token with VAPID key...', 'info');
+                
+                const token = await window.getFirebaseToken(vapidKey);
+                
+                if (token) {
+                    addResult('FCM Token Generated', {
+                        'Token': token.substring(0, 50) + '...',
+                        'Full Token': token,
+                        'Length': token.length
+                    }, 'success');
+                    updateStatus('✅ FCM token generated successfully!', 'success');
+                    
+                    // Try to register token with backend
+                    try {
+                        console.log('Attempting to register FCM token with backend...');
+                        
+                        // First try the test endpoint (doesn't require real user)
+                        const testResponse = await fetch('http://localhost:5000/api/v1/notifications/test-fcm-token', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                fcmToken: token,
+                                deviceInfo: 'Browser Test - ' + navigator.userAgent.substring(0, 50)
+                            })
+                        });
+                        
+                        console.log('Test registration response status:', testResponse.status);
+                        
+                        if (testResponse.ok) {
+                            const testData = await testResponse.json();
+                            console.log('Test registration successful:', testData);
+                            addResult('✅ FCM Token Backend Test', {
+                                'Status': 'Successfully registered with test endpoint',
+                                'Response': testData,
+                                'Note': 'Backend can receive and process FCM tokens'
+                            }, 'success');
+                        } else {
+                            const errorText = await testResponse.text();
+                            console.error('Test registration failed:', testResponse.status, errorText);
+                            addResult('❌ FCM Token Backend Test Failed', {
+                                'Status Code': testResponse.status,
+                                'Error': errorText,
+                                'Endpoint': '/test-fcm-token'
+                            }, 'error');
+                        }
+                    } catch (regError) {
+                        console.error('Registration error:', regError);
+                        addResult('🔧 Backend Connection Issue', {
+                            'Error': regError.message,
+                            'Possible Causes': [
+                                'Backend server not running on port 5000',
+                                'CORS issues',
+                                'Network connectivity problems',
+                                'Firewall blocking requests'
+                            ],
+                            'Quick Fix': 'Check if backend server is running: http://localhost:5000/api/v1/notifications/firebase-test'
+                        }, 'warning');
+                    }
+                } else {
+                    throw new Error('No token generated');
+                }
+                
+            } catch (error) {
+                addResult('FCM Token Error', error.message, 'error');
+                updateStatus('❌ Failed to get FCM token: ' + error.message, 'error');
+            }
+        }
+
+        async function testAPIConnection() {
+            updateStatus('Testing API connection...', 'info');
+            
+            try {
+                // Test 1: Basic notifications endpoint
+                console.log('Testing basic API...');
+                const basicResponse = await fetch('http://localhost:5000/api/v1/notifications/get-all');
+                const basicData = await basicResponse.json();
+                
+                if (basicResponse.ok) {
+                    addResult('✅ Basic API Test', {
+                        'Status': 'Connected',
+                        'Response': basicData,
+                        'Status Code': basicResponse.status
+                    }, 'success');
+                    
+                    // Test 2: Firebase test endpoint
+                    try {
+                        console.log('Testing Firebase endpoint...');
+                        const firebaseResponse = await fetch('http://localhost:5000/api/v1/notifications/firebase-test');
+                        const firebaseData = await firebaseResponse.json();
+                        
+                        if (firebaseResponse.ok) {
+                            addResult('✅ Firebase API Test', firebaseData, 'success');
+                            
+                            // Test 3: FCM Token test endpoint
+                            try {
+                                console.log('Testing FCM token endpoint...');
+                                const fcmResponse = await fetch('http://localhost:5000/api/v1/notifications/test-fcm-token', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        fcmToken: 'test-token-from-api-test',
+                                        deviceInfo: 'API Connection Test'
+                                    })
+                                });
+                                
+                                if (fcmResponse.ok) {
+                                    const fcmData = await fcmResponse.json();
+                                    addResult('✅ FCM Token Endpoint Test', fcmData, 'success');
+                                    updateStatus('✅ All API endpoints working perfectly!', 'success');
+                                } else {
+                                    const fcmErrorText = await fcmResponse.text();
+                                    addResult('❌ FCM Token Endpoint Failed', {
+                                        'Status Code': fcmResponse.status,
+                                        'Error': fcmErrorText
+                                    }, 'error');
+                                    updateStatus('⚠️ Basic API works, FCM endpoint has issues', 'warning');
+                                }
+                            } catch (fcmError) {
+                                addResult('❌ FCM Token Endpoint Error', fcmError.message, 'error');
+                                updateStatus('⚠️ Firebase API works, FCM endpoint unreachable', 'warning');
+                            }
+                            
+                        } else {
+                            addResult('❌ Firebase API Test Failed', 'Firebase routes not accessible', 'error');
+                            updateStatus('⚠️ Basic API works, Firebase routes need fixing', 'warning');
+                        }
+                    } catch (fbError) {
+                        addResult('❌ Firebase API Error', fbError.message, 'error');
+                        updateStatus('⚠️ Basic API works, Firebase routes unreachable', 'warning');
+                    }
+                } else {
+                    addResult('❌ Basic API Error', {
+                        'Status Code': basicResponse.status,
+                        'Response': basicData
+                    }, 'error');
+                    updateStatus('❌ API returned error', 'error');
+                }
+            } catch (error) {
+                addResult('❌ Complete API Connection Failure', {
+                    'Error': error.message,
+                    'Check': 'Is backend server running on port 5000?',
+                    'Command': 'node index.js in backend directory'
+                }, 'error');
+                updateStatus('❌ Cannot connect to API - check if backend server is running', 'error');
+            }
+        }
+
+        // Auto-run support check on page load
+        window.addEventListener('load', () => {
+            checkNotificationSupport();
+        });
+
+        // Test Windows notification system specifically
+        function testWindowsNotifications() {
+            updateStatus('Testing Windows notification system...', 'info');
+            
+            const tests = [];
+            
+            // Test 1: Check Windows notification settings
+            try {
+                if ('Notification' in window) {
+                    tests.push({
+                        test: 'Notification API Available',
+                        result: '✅ Supported',
+                        status: 'success'
+                    });
+                } else {
+                    tests.push({
+                        test: 'Notification API Available',
+                        result: '❌ Not supported in this browser',
+                        status: 'error'
+                    });
+                }
+                
+                // Test permission state
+                tests.push({
+                    test: 'Permission State',
+                    result: Notification.permission,
+                    status: Notification.permission === 'granted' ? 'success' : 'warning'
+                });
+                
+                // Test browser type
+                const isChrome = /Chrome/.test(navigator.userAgent);
+                const isEdge = /Edg/.test(navigator.userAgent);
+                const isFirefox = /Firefox/.test(navigator.userAgent);
+                
+                tests.push({
+                    test: 'Browser Type',
+                    result: isChrome ? 'Chrome' : isEdge ? 'Edge' : isFirefox ? 'Firefox' : 'Other',
+                    status: (isChrome || isEdge) ? 'success' : 'warning'
+                });
+                
+                // Test if running in localhost
+                tests.push({
+                    test: 'Running on localhost',
+                    result: window.location.hostname === 'localhost' ? '✅ Yes' : '❌ No',
+                    status: window.location.hostname === 'localhost' ? 'success' : 'warning'
+                });
+                
+                addResult('Windows Notification System Check', tests, 'info');
+                
+                if (Notification.permission === 'granted') {
+                    // Try multiple notification types
+                    testMultipleNotifications();
+                } else {
+                    updateStatus('⚠️ Request permission first, then try again', 'warning');
+                }
+                
+            } catch (error) {
+                addResult('Windows Notification Test Error', error.message, 'error');
+                updateStatus('❌ Error testing Windows notifications', 'error');
+            }
+        }
+
+        function testMultipleNotifications() {
+            updateStatus('Testing multiple notification types...', 'info');
+            
+            // Test 1: Simple notification
+            try {
+                const simpleNotification = new Notification('🧪 Simple Test', {
+                    body: 'This is a simple browser notification test',
+                    icon: '/favicon.ico'
+                });
+                
+                setTimeout(() => simpleNotification.close(), 3000);
+                addResult('Simple Notification', 'Sent successfully', 'success');
+            } catch (error) {
+                addResult('Simple Notification', 'Failed: ' + error.message, 'error');
+            }
+            
+            // Test 2: Rich notification
+            setTimeout(() => {
+                try {
+                    const richNotification = new Notification('🩸 Blood Donation Alert', {
+                        body: 'Urgent: O- blood needed at City Hospital',
+                        icon: '/favicon.ico',
+                        badge: '/favicon.ico',
+                        tag: 'blood-urgent',
+                        requireInteraction: true,
+                        silent: false,
+                        timestamp: Date.now(),
+                        data: {
+                            url: 'http://localhost:5174',
+                            type: 'urgent'
+                        }
+                    });
+                    
+                    richNotification.onclick = () => {
+                        console.log('Rich notification clicked');
+                        window.focus();
+                        richNotification.close();
+                    };
+                    
+                    setTimeout(() => richNotification.close(), 5000);
+                    addResult('Rich Notification', 'Sent with advanced features', 'success');
+                } catch (error) {
+                    addResult('Rich Notification', 'Failed: ' + error.message, 'error');
+                }
+            }, 1000);
+            
+            // Test 3: Persistent notification
+            setTimeout(() => {
+                try {
+                    const persistentNotification = new Notification('🔔 Persistent Test', {
+                        body: 'This notification should stay until you interact with it',
+                        icon: '/favicon.ico',
+                        requireInteraction: true,
+                        tag: 'persistent-test'
+                    });
+                    
+                    addResult('Persistent Notification', 'Sent (should require interaction)', 'success');
+                } catch (error) {
+                    addResult('Persistent Notification', 'Failed: ' + error.message, 'error');
+                }
+            }, 2000);
+            
+            updateStatus('✅ Multiple notification tests completed - check your notification area!', 'success');
+        }
+
+        // Send test push notification from backend
+        async function sendTestPushNotification() {
+            updateStatus('Sending test push notification from backend...', 'info');
+            
+            if (!window.firebaseMessaging) {
+                updateStatus('❌ Firebase messaging not available', 'error');
+                return;
+            }
+            
+            try {
+                // First get FCM token
+                const vapidKey = 'BA2J9Md2Vaxm1ibStzsDpN4ERhiFpjXy-bQxkkYx_SCTphkTZiPZdDY6NHmSh3HYLtf8CCepYqHf5SjnlrJ3KBs';
+                const token = await window.getFirebaseToken(vapidKey);
+                
+                if (!token) {
+                    updateStatus('❌ No FCM token available', 'error');
+                    return;
+                }
+                
+                addResult('FCM Token for Push Test', token.substring(0, 30) + '...', 'info');
+                
+                // Send push notification via backend
+                const response = await fetch('http://localhost:5000/api/v1/notifications/test-push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fcmToken: token,
+                        title: '🩸 Blood Donation Push Test',
+                        body: 'This is a test push notification from the backend server',
+                        data: {
+                            type: 'test',
+                            timestamp: new Date().toISOString()
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    addResult('✅ Push Notification Sent', result, 'success');
+                    updateStatus('✅ Push notification sent from backend! Check your notifications.', 'success');
+                } else {
+                    const errorText = await response.text();
+                    addResult('❌ Push Notification Failed', errorText, 'error');
+                    updateStatus('❌ Failed to send push notification', 'error');
+                }
+                
+            } catch (error) {
+                addResult('Push Notification Error', error.message, 'error');
+                updateStatus('❌ Error sending push notification: ' + error.message, 'error');
+            }
+        }
+
+        // Register as admin for push notifications
+        async function registerAsAdminForNotifications() {
+            updateStatus('Registering as admin for push notifications...', 'info');
+            
+            if (!window.firebaseMessaging) {
+                updateStatus('❌ Firebase messaging not available', 'error');
+                return;
+            }
+            
+            if (Notification.permission !== 'granted') {
+                updateStatus('❌ Notification permission required. Click "Request Permission" first.', 'warning');
+                return;
+            }
+            
+            try {
+                // Get FCM token
+                const vapidKey = 'BA2J9Md2Vaxm1ibStzsDpN4ERhiFpjXy-bQxkkYx_SCTphkTZiPZdDY6NHmSh3HYLtf8CCepYqHf5SjnlrJ3KBs';
+                const token = await window.getFirebaseToken(vapidKey);
+                
+                if (!token) {
+                    updateStatus('❌ Could not generate FCM token', 'error');
+                    return;
+                }
+                
+                // First, get or create an admin user ID
+                // For testing, we'll use a mock admin ID - in production, this would come from authentication
+                const adminUserId = 'admin-test-' + Date.now();
+                
+                addResult('FCM Token Generated', token.substring(0, 30) + '...', 'info');
+                
+                // Register the token for admin notifications
+                const response = await fetch('http://localhost:5000/api/v1/notifications/test-fcm-token', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fcmToken: token,
+                        deviceInfo: `Admin Test Device - ${navigator.platform}`,
+                        userType: 'admin'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    addResult('✅ Admin FCM Registration', {
+                        'Status': 'Successfully registered for admin notifications',
+                        'Token': token.substring(0, 20) + '...',
+                        'Device': navigator.platform,
+                        'Response': result
+                    }, 'success');
+                    
+                    updateStatus('✅ You are now registered to receive admin push notifications!', 'success');
+                    
+                    // Show instructions for testing
+                    addResult('📋 Next Steps', {
+                        'Step 1': 'Create a test notification (e.g., blood request)',
+                        'Step 2': 'Admin notifications will now include push notifications',
+                        'Step 3': 'Check Windows notification area for push notifications',
+                        'Note': 'In production, this would be tied to your actual admin account'
+                    }, 'info');
+                    
+                } else {
+                    const errorText = await response.text();
+                    addResult('❌ Admin Registration Failed', errorText, 'error');
+                    updateStatus('❌ Failed to register for admin notifications', 'error');
+                }
+                
+            } catch (error) {
+                addResult('Admin Registration Error', error.message, 'error');
+                updateStatus('❌ Error registering for admin notifications: ' + error.message, 'error');
+            }
+        }
+
+        // Test admin notification system
+        async function testAdminNotification() {
+            updateStatus('Testing admin notification system...', 'info');
+            
+            try {
+                // First, show an immediate browser notification to demonstrate the feature
+                if (Notification.permission === 'granted') {
+                    const immediateNotification = new Notification('🧪 Testing Admin Notifications', {
+                        body: 'This is an immediate browser notification. Now testing push notification system...',
+                        icon: '/favicon.ico',
+                        tag: 'admin-test-immediate',
+                        requireInteraction: false
+                    });
+                    
+                    setTimeout(() => immediateNotification.close(), 4000);
+                    
+                    addResult('✅ Immediate Browser Notification', 'Shown to demonstrate notification display', 'success');
+                }
+                
+                // Now test the admin notification system
+                const response = await fetch('http://localhost:5000/api/v1/notifications/test-admin-notification', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    addResult('✅ Admin Notification Test', result, 'success');
+                    
+                    // Show what happened
+                    if (result.result && result.result.tokenCount === 0) {
+                        addResult('ℹ️  Admin Push Notification Status', {
+                            'Database Notifications': '✅ Created successfully',
+                            'Push Notifications': '⚠️ Skipped (no FCM tokens registered)',
+                            'Issue': 'Need to register FCM tokens for admin users in the database',
+                            'Next Step': 'Use "Register as Admin" and try "Send Direct Push Test"'
+                        }, 'warning');
+                    } else if (result.result && result.result.success) {
+                        addResult('🎉 Push Notification Success', {
+                            'Status': 'Push notifications sent successfully!',
+                            'Recipients': result.result.tokenCount || 'Unknown',
+                            'Check': 'Look for notifications in Windows notification area'
+                        }, 'success');
+                    }
+                    
+                    updateStatus('✅ Admin notification test completed! Check notifications and results above.', 'success');
+                    
+                } else {
+                    const errorText = await response.text();
+                    addResult('❌ Admin Notification Test Failed', errorText, 'error');
+                    updateStatus('❌ Failed to create admin notification', 'error');
+                }
+                
+            } catch (error) {
+                addResult('Admin Notification Test Error', error.message, 'error');
+                updateStatus('❌ Error testing admin notifications: ' + error.message, 'error');
+            }
+        }
+
+        // Send direct push notification test
+        async function sendDirectPushTest() {
+            updateStatus('Sending direct push notification test...', 'info');
+            
+            if (!window.firebaseMessaging) {
+                updateStatus('❌ Firebase messaging not available', 'error');
+                return;
+            }
+            
+            if (Notification.permission !== 'granted') {
+                updateStatus('❌ Notification permission required', 'warning');
+                return;
+            }
+            
+            try {
+                // Get FCM token
+                const vapidKey = 'BA2J9Md2Vaxm1ibStzsDpN4ERhiFpjXy-bQxkkYx_SCTphkTZiPZdDY6NHmSh3HYLtf8CCepYqHf5SjnlrJ3KBs';
+                const token = await window.getFirebaseToken(vapidKey);
+                
+                if (!token) {
+                    updateStatus('❌ Could not get FCM token', 'error');
+                    return;
+                }
+                
+                // Send direct push notification
+                const response = await fetch('http://localhost:5000/api/v1/notifications/test-push', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fcmToken: token,
+                        title: '🩸 Direct Push Test',
+                        body: 'This is a direct push notification test from the backend to your specific device.',
+                        data: {
+                            type: 'direct-test',
+                            timestamp: new Date().toISOString(),
+                            source: 'admin-test'
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    addResult('✅ Direct Push Notification', {
+                        'Status': 'Sent successfully',
+                        'Target': 'Your specific FCM token',
+                        'Result': result,
+                        'Note': 'Should appear in Windows notification area AND browser (if in foreground)'
+                    }, 'success');
+                    updateStatus('✅ Direct push notification sent! Check Windows notification area.', 'success');
+                } else {
+                    const errorText = await response.text();
+                    addResult('❌ Direct Push Failed', errorText, 'error');
+                    updateStatus('❌ Failed to send direct push notification', 'error');
+                }
+                
+            } catch (error) {
+                addResult('Direct Push Error', error.message, 'error');
+                updateStatus('❌ Error sending direct push: ' + error.message, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
