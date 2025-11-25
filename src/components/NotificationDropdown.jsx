@@ -485,8 +485,26 @@ const NotificationDropdown = ({ userRole }) => {
         onClick={toggleNotifications}
       >
         <img src={bell} alt="bell icon" className="bell-icon"/>
+        {/* Show notification indicator for all roles if unread notifications exist */}
         {unreadCount > 0 && (
-          <span className="notification-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
+          <span className="notification-badge">
+            {userRole === 'doctor' ? '' : (unreadCount > 99 ? '99+' : unreadCount)}
+          </span>
+        )}
+        {/* For doctor, show a red dot indicator instead of number */}
+        {userRole === 'doctor' && unreadCount > 0 && (
+          <span className="notification-dot" style={{
+            position: 'absolute',
+            top: 8,
+            right: 10,
+            width: 12,
+            height: 12,
+            background: '#d32f2f',
+            borderRadius: '50%',
+            border: '2px solid #fff',
+            display: 'inline-block',
+            zIndex: 2
+          }}></span>
         )}
       </button>
       {isNotificationOpen && (
