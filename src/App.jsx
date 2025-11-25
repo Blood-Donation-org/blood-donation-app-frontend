@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import './App.css';
 import ProtectedRoute from './components/ProtectedRoute';
+import NotificationSettings from './components/NotificationSettings';
 import AboutUs from './pages/AboutUsPage';
 import AddCampPage from './pages/AddCampPage';
 import BloodCampsPage from './pages/BloodCampsPage';
@@ -207,6 +208,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <div>Change Password Page</div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notification-settings"
+            element={
+              <ProtectedRoute>
+                <NotificationSettings />
               </ProtectedRoute>
             }
           />

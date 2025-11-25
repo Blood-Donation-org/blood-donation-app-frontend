@@ -1,0 +1,303 @@
+.notification-settings-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.notification-settings-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.notification-settings-header h3 {
+  color: #333;
+  font-size: 1.8rem;
+  margin: 0 0 10px 0;
+  font-weight: 600;
+}
+
+.notification-settings-header p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.notification-error {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.notification-feedback {
+  background: #efe;
+  border: 1px solid #cfc;
+  color: #363;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* Permission Section */
+.permission-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.permission-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.status-indicator {
+  font-size: 1.2rem;
+}
+
+.status-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.permission-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.permission-actions-enabled {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 120px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-enable-notifications {
+  background: #28a745;
+  color: white;
+}
+
+.btn-enable-notifications:hover:not(:disabled) {
+  background: #218838;
+  transform: translateY(-1px);
+}
+
+.btn-test-notification {
+  background: #007bff;
+  color: white;
+}
+
+.btn-test-notification:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-1px);
+}
+
+.btn-disable-notifications {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-disable-notifications:hover:not(:disabled) {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Preferences Section */
+.preferences-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #e9ecef;
+}
+
+.preferences-section h4 {
+  color: #333;
+  font-size: 1.3rem;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.preference-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.preference-item {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  transition: all 0.2s ease;
+}
+
+.preference-item:hover {
+  border-color: #007bff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.preference-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  margin: 0;
+}
+
+.preference-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0 0;
+  cursor: pointer;
+  accent-color: #007bff;
+}
+
+.preference-label input[type="checkbox"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.preference-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.preference-description {
+  font-size: 0.9rem;
+  color: #666;
+  display: block;
+  line-height: 1.4;
+}
+
+/* Info Section */
+.info-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.info-section h4 {
+  color: white;
+  font-size: 1.3rem;
+  margin: 0 0 15px 0;
+  font-weight: 600;
+}
+
+.info-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .notification-settings-container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .notification-settings-header h3 {
+    font-size: 1.5rem;
+  }
+  
+  .permission-actions-enabled {
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .preference-label {
+    align-items: flex-start;
+  }
+  
+  .preference-title {
+    font-size: 0.95rem;
+  }
+  
+  .preference-description {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-settings-container {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  .permission-section,
+  .preferences-section,
+  .info-section {
+    padding: 15px;
+  }
+}
