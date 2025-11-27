@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -12,6 +13,14 @@ const DoctorRequests = () => {
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+    // Periodically refresh requests from backend every 10 seconds
+  useEffect(() => {
+    if (!userData || !userData.id) return;
+    const interval = setInterval(() => {
+      loadDoctorRequests(userData.id);
+    }, 1000); // 1 second
+    return () => clearInterval(interval);
+  }, [userData]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
@@ -58,6 +67,24 @@ const DoctorRequests = () => {
     
     applyFilters();
   }, [requests, filterStatus, searchTerm]);
+
+  // Listen for external updates (from other pages/components) and apply them locally
+  useEffect(() => {
+    const handleExternalUpdate = (e) => {
+      const { updatedRequest } = e?.detail || {};
+      if (!updatedRequest) return;
+      const id = updatedRequest._id || updatedRequest.id;
+      setRequests(prev => prev.map(r => {
+        const rid = r._id || r.id;
+        if (rid === id) {
+          return { ...r, ...updatedRequest };
+        }
+        return r;
+      }));
+    };
+    window.addEventListener('requestUpdated', handleExternalUpdate);
+    return () => window.removeEventListener('requestUpdated', handleExternalUpdate);
+  }, []);
 
 
 
@@ -182,42 +209,31 @@ const DoctorRequests = () => {
                         value={request.confirmationStatus || 'unconfirmed'}
                         onChange={async (e) => {
                           const newConfirmation = e.target.value;
-                          console.log('Updating confirmation status to:', newConfirmation);
-                          console.log('Request ID:', request._id || request.id);
-                          
                           try {
                             const requestId = request._id || request.id;
                             const url = `http://localhost:5000/api/v1/blood-requests/update-confirmation/${requestId}`;
                             const payload = { confirmationStatus: newConfirmation };
-                            
-                            console.log('Making PATCH request to:', url);
-                            console.log('With payload:', payload);
-                            
                             const res = await axios.patch(url, payload);
-                            
-                            console.log('Response received:', res.data);
+                            // Try to get the full updated request object from the response
+                            const updatedRequest = res.data.updatedRequest || res.data.request || res.data;
                             alert(res.data.message || 'Confirmation status updated successfully');
-                            
-                            // Update local state
                             setRequests(prev => prev.map(r =>
                               (r._id || r.id) === requestId
-                                ? { ...r, confirmationStatus: newConfirmation }
+                                ? { ...r, ...updatedRequest }
                                 : r
                             ));
-                            
-                            // Trigger notification refresh if available
                             if (globalThis.refreshNotifications) {
                               globalThis.refreshNotifications();
                             }
-                            
+                            try {
+                              window.dispatchEvent(new CustomEvent('requestUpdated', { detail: { updatedRequest } }));
+                            } catch (evtErr) {
+                              console.warn('Failed to dispatch requestUpdated event', evtErr);
+                            }
                           } catch (error) {
                             console.error('Error updating confirmation status:', error);
-                            console.error('Error response:', error.response?.data);
-                            
                             const errorMessage = error.response?.data?.message || 'Failed to update confirmation status';
                             alert(errorMessage);
-                            
-                            // Reset dropdown to original value on error
                             e.target.value = request.confirmationStatus || 'unconfirmed';
                           }
                         }}
