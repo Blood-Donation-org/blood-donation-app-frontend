@@ -72,6 +72,7 @@ export const API_ENDPOINTS = {
   
   // Notification endpoints
   NOTIFICATION: {
+    BASE: `${API_BASE_URL}/notifications`,
     GET_ALL: `${API_BASE_URL}/notifications/get-all`,
     GET_BLOOD_REQUESTS: `${API_BASE_URL}/notifications/get-all`,
     GET_BY_USER: (userId) => `${API_BASE_URL}/notifications/get-by-user/${userId}`,
