@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, onMessage, isSupported } from 'firebase/messaging';
+import { getMessaging, getToken, isSupported, onMessage } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYoneYWVChCstCD6PMFjd5biJ8HJZh7Io",
@@ -53,15 +53,18 @@ export const requestNotificationPermission = async (vapidKey = null) => {
 
     // Request permission
     const permission = await Notification.requestPermission();
-    
+
     if (permission === 'granted') {
       console.log('Notification permission granted');
-      
+
+      // Get VAPID key from .env if not provided
+      const envVapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY;
+
       // Get registration token
       const token = await getToken(messaging, {
-        vapidKey: vapidKey || 'YOUR_VAPID_KEY_HERE' // Replace with your VAPID key
+        vapidKey: vapidKey || envVapidKey || 'YOUR_VAPID_KEY_HERE'
       });
-      
+
       if (token) {
         console.log('FCM Token:', token);
         return token;
