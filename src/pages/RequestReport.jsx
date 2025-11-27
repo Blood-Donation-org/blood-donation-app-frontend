@@ -48,7 +48,6 @@ const RequestReport = () => {
     fetchRequests();
   }, []);
 
-<<<<<<< HEAD
   // Listen for external updates and apply them to this page's state
   useEffect(() => {
     const onRequestUpdated = (e) => {
@@ -65,56 +64,6 @@ const RequestReport = () => {
     window.addEventListener('requestUpdated', onRequestUpdated);
     return () => window.removeEventListener('requestUpdated', onRequestUpdated);
   }, []);
-=======
-  // Set up polling for real-time updates
-  useEffect(() => {
-    if (!currentUser?.id) return;
-
-    const pollKey = userRole === 'admin' ? 'admin-requests' : `doctor-requests-${currentUser.id}`;
-    
-    // Start polling every 5 seconds
-    pollingService.startPolling(
-      pollKey,
-      async () => {
-        try {
-          const response = await axios.get(
-            "http://localhost:5000/api/v1/blood-requests/get-all"
-          );
-          const allRequests = response.data.bloodRequests || response.data || [];
-          
-          let updatedRequests;
-          if (userRole === "admin") {
-            updatedRequests = allRequests;
-          } else {
-            // Filter requests for current user (doctor)
-            updatedRequests = allRequests.filter((request) => {
-              return request.user && request.user._id === currentUser.id;
-            });
-          }
-          
-          // Check if there are any changes
-          const hasChanges = JSON.stringify(requests) !== JSON.stringify(updatedRequests);
-          
-          if (hasChanges) {
-            setRequests(updatedRequests);
-            setHasNewUpdate(true);
-            
-            // Clear the update indicator after 3 seconds
-            setTimeout(() => setHasNewUpdate(false), 3000);
-          }
-        } catch (error) {
-          console.error('Error polling for updates:', error);
-        }
-      },
-      5000 // Poll every 5 seconds
-    );
-
-    // Cleanup: stop polling when component unmounts
-    return () => {
-      pollingService.stopPolling(pollKey);
-    };
-  }, [currentUser, userRole, requests]);
->>>>>>> 36151cb015b8e187766d58e27d013f0af620ede3
 
   const getConfirmationBadge = (confirmation) => {
     if (confirmation === "received") {

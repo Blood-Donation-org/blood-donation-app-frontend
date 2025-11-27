@@ -14,7 +14,7 @@ const DoctorRequests = () => {
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-<<<<<<< HEAD
+  const [hasNewUpdate, setHasNewUpdate] = useState(false);
     // Periodically refresh requests from backend every 10 seconds
   useEffect(() => {
     if (!userData || !userData.id) return;
@@ -23,9 +23,6 @@ const DoctorRequests = () => {
     }, 1000); // 1 second
     return () => clearInterval(interval);
   }, [userData]);
-=======
-  const [hasNewUpdate, setHasNewUpdate] = useState(false);
->>>>>>> 36151cb015b8e187766d58e27d013f0af620ede3
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
