@@ -112,10 +112,10 @@ const DoctorBloodRequest = () => {
       return false;
     }
 
-    // Validate phone number (basic validation)
-    const phoneRegex = /^[0-9+\-\s()]{10,15}$/;
+    // Validate Sri Lankan phone number (10 digits)
+    const phoneRegex = /^0[0-9]{9}$/;
     if (!phoneRegex.test(formData.contactNumber)) {
-      alert('Please enter a valid contact number');
+      alert('Please enter a valid contact number (10 digits starting with 0)');
       return false;
     }
     
@@ -377,7 +377,16 @@ const DoctorBloodRequest = () => {
                       value={formData.contactNumber}
                       onChange={handleInputChange}
                       className="form-input"
-                      placeholder="e.g., +94771234567"
+                      placeholder="0771234567"
+                      pattern="[0-9]*"
+                      inputMode="numeric"
+                      maxLength="10"
+                      onKeyPress={(e) => {
+                        // Only allow digits
+                        if (!/[0-9]/.test(e.key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       required
                     />
                   </div>

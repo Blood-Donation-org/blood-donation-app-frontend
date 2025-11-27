@@ -230,8 +230,8 @@ const RequestReport = () => {
                           className="status-dropdown"
                         >
                           <option value="pending">PENDING</option>
-                          <option value="approved">AVAILABLE</option>
-                          <option value="not_available">NOT AVAILABLE</option>
+                          <option value="approved">ISSUED</option>
+                          <option value="not_available">NOT ISSUED</option>
                         </select>
                       ) : (
                         <span className={`status-badge ${
