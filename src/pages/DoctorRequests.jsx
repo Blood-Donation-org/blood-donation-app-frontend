@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import pollingService from '../services/pollingService';
 import '../styles/DoctorRequests.css';
 
 const DoctorRequests = () => {
@@ -12,6 +13,7 @@ const DoctorRequests = () => {
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [hasNewUpdate, setHasNewUpdate] = useState(false);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('userData'));
@@ -22,6 +24,45 @@ const DoctorRequests = () => {
       navigate('/');
     }
   }, [navigate, location.search]); // Add location.search to dependencies
+
+  // Set up polling for real-time updates
+  useEffect(() => {
+    if (!userData?.id) return;
+
+    const pollKey = `doctor-requests-${userData.id}`;
+    
+    // Start polling every 5 seconds
+    pollingService.startPolling(
+      pollKey,
+      async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/api/v1/blood-requests/get-by-user/${userData.id}`
+          );
+          const updatedRequests = response.data.bloodRequests || response.data || [];
+          
+          // Check if there are any changes
+          const hasChanges = JSON.stringify(requests) !== JSON.stringify(updatedRequests);
+          
+          if (hasChanges) {
+            setRequests(updatedRequests);
+            setHasNewUpdate(true);
+            
+            // Clear the update indicator after 3 seconds
+            setTimeout(() => setHasNewUpdate(false), 3000);
+          }
+        } catch (error) {
+          console.error('Error polling for updates:', error);
+        }
+      },
+      5000 // Poll every 5 seconds
+    );
+
+    // Cleanup: stop polling when component unmounts
+    return () => {
+      pollingService.stopPolling(pollKey);
+    };
+  }, [userData, requests]);
 
   const loadDoctorRequests = async (doctorId) => {
     try {
@@ -83,6 +124,19 @@ const DoctorRequests = () => {
           <div className="header-content">
             <h1>My Blood Requests</h1>
             <p>Track and manage your submitted blood requests</p>
+            {hasNewUpdate && (
+              <div className="update-indicator" style={{
+                marginTop: '10px',
+                padding: '8px 12px',
+                backgroundColor: '#4CAF50',
+                color: 'white',
+                borderRadius: '4px',
+                fontSize: '14px',
+                display: 'inline-block'
+              }}>
+                ✓ New updates received
+              </div>
+            )}
           </div>
           <Link to="/contact-blood" className="new-request-btn">
             + New Request

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import pollingService from "../services/pollingService";
 import "../styles/RequestReport.css";
 
 const RequestReport = () => {
@@ -8,6 +9,7 @@ const RequestReport = () => {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [hasNewUpdate, setHasNewUpdate] = useState(false);
 
   useEffect(() => {
     // Get current user data
@@ -42,6 +44,55 @@ const RequestReport = () => {
     };
     fetchRequests();
   }, []);
+
+  // Set up polling for real-time updates
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const pollKey = userRole === 'admin' ? 'admin-requests' : `doctor-requests-${currentUser.id}`;
+    
+    // Start polling every 5 seconds
+    pollingService.startPolling(
+      pollKey,
+      async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/v1/blood-requests/get-all"
+          );
+          const allRequests = response.data.bloodRequests || response.data || [];
+          
+          let updatedRequests;
+          if (userRole === "admin") {
+            updatedRequests = allRequests;
+          } else {
+            // Filter requests for current user (doctor)
+            updatedRequests = allRequests.filter((request) => {
+              return request.user && request.user._id === currentUser.id;
+            });
+          }
+          
+          // Check if there are any changes
+          const hasChanges = JSON.stringify(requests) !== JSON.stringify(updatedRequests);
+          
+          if (hasChanges) {
+            setRequests(updatedRequests);
+            setHasNewUpdate(true);
+            
+            // Clear the update indicator after 3 seconds
+            setTimeout(() => setHasNewUpdate(false), 3000);
+          }
+        } catch (error) {
+          console.error('Error polling for updates:', error);
+        }
+      },
+      5000 // Poll every 5 seconds
+    );
+
+    // Cleanup: stop polling when component unmounts
+    return () => {
+      pollingService.stopPolling(pollKey);
+    };
+  }, [currentUser, userRole, requests]);
 
   const getConfirmationBadge = (confirmation) => {
     if (confirmation === "received") {
@@ -99,6 +150,20 @@ const RequestReport = () => {
         <h1>
           {userRole === "admin" ? "All Blood Requests" : "My Request Report"}
         </h1>
+        {hasNewUpdate && (
+          <div className="update-indicator" style={{
+            marginTop: '10px',
+            marginBottom: '20px',
+            padding: '8px 12px',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            borderRadius: '4px',
+            fontSize: '14px',
+            display: 'inline-block'
+          }}>
+            ✓ New updates received
+          </div>
+        )}
 
         {requests.length === 0 ? (
           <div className="no-requests">
